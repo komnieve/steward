@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f docs/session-notes/current.md ]; then git add docs/session-notes/; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
