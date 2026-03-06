@@ -6,6 +6,12 @@ A guided conversation framework for developing operational self-knowledge — un
 
 When the steward knows that you avoid shipping because visibility triggers anxiety (not because you're lazy), it can frame its nudges differently. When it knows you work best in structured blocks with someone present, it can recommend that structure instead of generic "just do it" advice.
 
+## Prerequisites
+
+This process works best after you've used Claude Code for **at least 5-10 working sessions**. Claude needs enough interaction history to observe real patterns — not just what you say about yourself, but how you actually work. If you're just starting out, use Claude Code on real work for a week or two first, then come back to this.
+
+You'll also want a `work/` directory in your project for storing the observations and assessment files. If you're using the steward template, this already exists.
+
 ## The Process
 
 ### Phase 1: Observations (1-2 sessions)
@@ -81,12 +87,53 @@ The assessment should cover:
 
 ### Phase 4: Integration
 
-Once the assessment exists, reference it in two places:
+Once the assessment exists, integrate it into two places so both your interactive sessions and autonomous check-ins are informed by it.
 
-1. **CLAUDE.md** — Add a summary in the "Who You Are" section + link to the full file
-2. **Steward persona** — Add the operational insights to the persona's context section
+#### 1. CLAUDE.md — "Who You Are" Working Context
 
-This means both your interactive sessions and your autonomous check-ins are informed by the assessment.
+Add a section to your CLAUDE.md that gives Claude the operational context it needs. This isn't the full assessment — it's the working summary. Structure it like this:
+
+```markdown
+## Who [Your Name] Is — Working Context
+
+Read this every session. It shapes how you work together.
+
+**Core pattern**: [1-2 sentences on the central dynamic that drives your work behavior.
+Example: "Avoids visibility and external testing due to fear of being found lacking."]
+
+**How this shows up in work**: [Specific behavioral patterns Claude should watch for.
+Example: "Specs get written but outreach doesn't start. Configs are ready but
+don't get deployed. The work isn't hard — the exposure is."]
+
+**What actually works**: [What helps you break through the pattern.
+Example: "Structured sessions with someone present. External accountability.
+Time-boxing. When stuck, asking: 'Is fear making this decision, or are you?'"]
+
+**Strengths**: [Your top capabilities — what to leverage.]
+
+**Growth edges**: [Where the biggest leverage is for improvement.]
+
+**How to work with him/her**: [Specific instructions for Claude's tone and approach.
+Example: "Compassion AND follow-through, always together. Don't coddle, don't shame.
+Name what's true and ask what's next."]
+
+**Full assessment**: `work/personality-assessment.md`
+```
+
+#### 2. Steward Persona
+
+Add the operational insights to your steward persona file's context section. The steward needs less depth but more actionable framing:
+
+```markdown
+## Who You're Working With
+
+- [Name] tends to [pattern]. When you see [specific sign], nudge toward [action].
+- Best work happens when [conditions].
+- Avoidance usually means [root cause], not laziness.
+- Frame nudges as [approach that works] rather than [approach that doesn't].
+```
+
+The steward only needs the operational summary — it doesn't need the full inner landscape.
 
 ## What Makes a Good Assessment
 
@@ -95,6 +142,10 @@ This means both your interactive sessions and your autonomous check-ins are info
 - **Connected to behavior.** Every insight should connect to observable patterns and actionable implications.
 - **Compassionate but direct.** Understanding why a pattern exists doesn't mean accepting it. Name it, understand it, work with it.
 - **Living document.** Update it as you learn more. Challenge anything that doesn't land. The goal is accuracy in service of direction.
+
+## Setup Note: Fork, Don't Clone
+
+If you're using someone else's steward repo as a starting point, **fork it** on GitHub and make your fork **private**. This gives you your own copy you can customize without affecting the original, and keeps your personal assessment files out of a public repo. On GitHub: click "Fork" → check "Copy the main branch only" → under your fork's Settings → General → change visibility to Private.
 
 ## Privacy Note
 
