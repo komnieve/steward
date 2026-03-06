@@ -35,37 +35,73 @@ This is a structured conversation where Claude asks questions and you answer hon
 Start with:
 > "Let's do the personality assessment conversation. I want you to ask me questions to understand who I am — not my resume, but how I actually work, what drives me, what I avoid, what I'm afraid of. Be direct. I'll be honest."
 
-### Suggested Question Areas
+### How Claude Should Facilitate
 
-**Energy and motivation:**
+This is not a questionnaire. Don't just run down the list. The questions below are starting points — the real signal comes from follow-ups.
+
+- **Go where the energy is.** If an answer has heat — emotion, hesitation, a long pause, a deflection — stay there. Ask "say more about that" or "what's underneath that?"
+- **Follow up on half-answers.** If someone says "I guess I avoid conflict," don't move on. Ask: "What happens when you imagine the conflict? What are you afraid will happen?"
+- **Don't rush.** Better to spend 20 minutes on one rich thread than to skim through all the questions. You can always do a second session.
+- **Mirror back what you hear.** "It sounds like you're saying X — is that right?" This builds trust and lets them correct or deepen.
+- **Name patterns you notice across answers.** "You've mentioned control three times now — in how you manage your team, how you prepare for meetings, how you parent. Is that a pattern you recognize?"
+- **Hold space for silence.** Some of these questions require thinking. Don't fill the gap.
+- **Be direct but not clinical.** You're having a real conversation, not administering a test. Match their energy. If they're being vulnerable, honor that.
+
+### Question Areas
+
+Work through these roughly in order. The earlier questions build trust and context; the later ones go deeper. You won't get to everything — that's fine. Prioritize depth over coverage.
+
+**1. Energy and motivation:**
 - What energizes you? What drains you?
 - Describe your best workday in the last month. What made it good?
 - Describe your worst. What made it bad?
 - When do you feel most alive professionally?
+- What kind of work makes time disappear?
 
-**Patterns and tendencies:**
+**2. Patterns and tendencies:**
 - What do you consistently avoid? What's underneath the avoidance?
-- When you're stuck, what does "stuck" actually feel like in your body?
+- When you're stuck, what does "stuck" actually feel like? (In your body, in your thoughts, in your behavior.)
 - What's your relationship with deadlines? Do they motivate or paralyze?
 - How do you respond to criticism? To praise?
+- What's the story you tell yourself when things go wrong? ("I'm not good enough," "nobody helps me," "I should have known better" — what's the tape?)
 
-**Working style:**
+**3. Working style:**
 - Do you work better alone or with someone present? Why?
 - What does your best productive state feel like?
-- How do you handle unstructured time?
-- What role do you naturally take in groups?
+- How do you handle unstructured time? (Be honest — not how you think you should handle it.)
+- What role do you naturally take in groups? Leader, advisor, executor, observer?
+- When you're in a meeting, what are you paying attention to that others aren't?
 
-**Deeper questions (if you're willing):**
+**4. What you want:**
+- What do you actually want? Not what you think you should want. Not what would be impressive. What do you want?
+- If money were completely solved, what would you do on a Tuesday?
+- What does "enough" look like for you? (Enough money, enough success, enough recognition.)
+- What are you building toward? Is it clear or fuzzy?
+- What would you regret not having tried?
+
+**5. Relationships and identity:**
 - What are you afraid of people finding out about you?
 - What's the gap between how you present and how you feel inside?
 - Where in your life are you performing vs. being authentic?
-- What would you do on a Tuesday if money were completely solved?
-- When you imagine your kids as adults talking about you, what do you want them to say?
+- When you imagine your kids (or people who matter to you) as adults talking about you, what do you want them to say?
+- Who do you admire? What specifically about them?
+- Who were you before you started optimizing?
 
-**Strengths that might be blind spots:**
+**6. Strengths and shadows:**
 - What strength of yours might also be holding you back?
 - Where does perfectionism show up? Where is it actually serving you?
 - Do you over-prepare as a way to avoid starting?
+- What's the thing you're best at that nobody pays you for?
+- What feedback have you received more than once that you haven't fully accepted?
+
+### Estimating Psychological Frameworks
+
+After the conversation, Claude should estimate the person's profile across standard frameworks. These aren't tests — they're pattern-matching from real answers. Include evidence for each estimate.
+
+- **Big Five (OCEAN)**: Rate each dimension (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism) as low/moderate/high with specific evidence from the conversation. Example: "High Openness — drawn to novel frameworks, builds cross-domain connections, bored by routine execution."
+- **MBTI approximation**: Estimate the 4-letter type but hold it loosely. Note where the person falls clearly vs. where they're near the middle.
+- **Enneagram**: Estimate core type, wing, and stress/growth directions. This one often resonates most — share it and ask if it lands.
+- **Professional archetype**: What role fits them naturally? (Architect, operator, evangelist, advisor, builder, etc.) This is the most actionable — it tells you what work they should be doing more of.
 
 ### Phase 3: The Written Assessment
 
