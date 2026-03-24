@@ -58,6 +58,10 @@ The Steward is that. It reads everything, remembers nothing between runs (by des
 +---------------------------+
 ```
 
+## Getting Started
+
+New to Steward? See the **[Getting Started Guide](guides/getting-started.md)** for a step-by-step walkthrough from clone to your first autonomous check-in.
+
 ## Components
 
 ### 1. CLAUDE.md — Project Instructions
@@ -109,12 +113,33 @@ A philosophical framework for holding work as practice — contemplative awarene
 
 See: [Practice Guide](guides/practice-integration.md) | [Template](templates/UPEKHA.md)
 
-### 7. Transcription Corrections
+### 7. Learning Edge Detection
+When you work with AI every day, it's easy to route around things you don't understand instead of learning them. The model handles it, the work ships, and your understanding stays flat.
+
+Learning Edge Detection is a CLAUDE.md instruction that watches for moments where you defer something out of avoidance (not efficiency) and flags it as a learning opportunity. It pairs with a `learning-edges.md` file that tracks your active growth areas, and supports spaced retrieval practice — the model generates questions that test your understanding over time instead of just re-explaining things.
+
+The principle: **using models should accelerate learning, not bypass it.**
+
+See: [Learning as Practice Guide](guides/learning-as-practice.md) | [Learning Edges Template](templates/learning-edges-template.md)
+
+### 8. Time Awareness Hook
+A `UserPromptSubmit` hook that injects temporal metadata into every Claude Code message: current time, timezone, elapsed time since last prompt, date changes, and last logged activity. The model never has to guess what time it is or how long you've been away.
+
+This enables context-aware behavior: surfacing time-sensitive items after long gaps, noting day transitions, and resolving relative dates accurately.
+
+See: [Hook Script](hooks/inject-time.sh) | [Settings Template](templates/settings.json)
+
+### 9. Research Query Tracking
+When you need analysis beyond what Claude Code can do in a session (e.g., deep research with a frontier model like GPT 5.4 Pro), the system tracks research queries in the activity database. Each query gets a folder with a `prompt.md` and `response.md`, and metadata is stored in SQLite for easy querying.
+
+See: [Activity Tracking Guide](guides/activity-tracking.md) | [Schema Setup](setup/create-activity-db.sh)
+
+### 10. Transcription Corrections
 If you use voice input (dictation), Claude Code can auto-correct known speech-to-text errors. Maintain a correction table and reference it in CLAUDE.md.
 
 See: [Template](templates/transcription-corrections.md)
 
-### 8. Tools & Integrations
+### 9. Tools & Integrations
 The system works with several external tools:
 
 | Tool | Purpose | Required? |
@@ -183,32 +208,43 @@ Start a Claude Code session and follow the guide in [guides/personality-assessme
 ### 7. (Optional) Set up practice integration
 If you have a contemplative practice, customize `templates/UPEKHA.md` and add it to your project.
 
+### 8. (Optional) Enable Learning Edge Detection
+Add the Learning Edge Detection instruction to your CLAUDE.md (see [the guide](guides/learning-as-practice.md)) and copy `templates/learning-edges-template.md` to `work/learning-edges.md` in your project.
+
 ## File Structure
 ```
 steward/
   README.md                          # This file
   guides/
+    getting-started.md               # Step-by-step setup walkthrough
     claude-md.md                     # How to write effective CLAUDE.md files
     steward.md                       # How the autonomous steward works
     activity-tracking.md             # Setting up and using the activity database
     status-dashboard.md              # How to maintain status.md
     personality-assessment.md        # Guided self-assessment framework
     practice-integration.md          # Work-as-practice philosophy (optional)
+    learning-as-practice.md          # Learning Edge Detection and spaced retrieval
     tools-setup.md                   # Signal, gws, MCP servers, hooks, skills, memory
+  hooks/
+    inject-time.sh                   # Time awareness hook (UserPromptSubmit)
   templates/
     CLAUDE.md                        # Project instructions template
     steward-persona.md               # Steward persona template
     status.md                        # Status dashboard template
     UPEKHA.md                        # Practice integration template
     transcription-corrections.md     # Speech-to-text corrections template
+    learning-edges-template.md       # Learning edges tracking template
     holidays.txt                     # Holiday skip list
-    settings.json                    # Claude Code settings example
+    settings.json                    # Claude Code settings (includes time hook)
     mcp.json                         # MCP server config example
   scripts/
     daily-check.sh                   # Morning steward cron script
     evening-check.sh                 # Evening steward cron script
+    steward-gather.sh                # Context gathering (Phase 1)
+    steward-update-stuck.sh          # Stuck item tracker updater
+    steward-summarize-sessions.sh    # Session summary generator
   setup/
-    create-activity-db.sh            # Initialize SQLite activity database
+    create-activity-db.sh            # Initialize SQLite database (activity + research queries)
 ```
 
 ## Design Principles

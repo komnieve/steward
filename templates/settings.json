@@ -1,12 +1,13 @@
 {
   "hooks": {
-    "PostToolUse": [
+    "UserPromptSubmit": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -f docs/session-notes/current.md ]; then git add docs/session-notes/; fi"
+            "command": "~/.claude/hooks/inject-time.sh",
+            "timeout": 5
           }
         ]
       }
