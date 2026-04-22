@@ -149,9 +149,9 @@ adapter for an agent we don't ship, PR it into [`runtimes/`](runtimes/).
 
 ## Acknowledgments
 
-Built by Komnieve and shaped by conversations with fellow practitioners. The
-Practice Layer interface draws on contemplative traditions without claiming to
-represent any of them.
+Built as a service of Upekha Ventures and shaped by conversations with
+practitioners. The Practice Layer interface draws on contemplative traditions
+without claiming to represent any of them.
 
 ---
 
