@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Steward setup — guided installation.
+#
+# Usage:
+#   ./scripts/setup           — run all 8 phases interactively
+#   ./scripts/setup --force   — overwrite an existing ~/.steward/
+#   ./scripts/setup --help    — show this text
+#
+# Environment:
+#   STEWARD_HOME     — override install location (default: ~/.steward)
+#
+# Documentation: see README.md and guides/getting-started.md
+
+set -euo pipefail
+
+# --- Argument parsing -------------------------------------------------------
+FORCE="n"
+for arg in "$@"; do
+  case "$arg" in
+    --force) FORCE="y" ;;
+    --help|-h) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "unknown argument: $arg"; exit 1 ;;
+  esac
+done
+
+# --- Resolve paths ----------------------------------------------------------
+STEWARD_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STEWARD_HOME="${STEWARD_HOME:-$HOME/.steward}"
+export STEWARD_REPO STEWARD_HOME FORCE
+
+PHASES="$STEWARD_REPO/scripts/setup-phases"
+[[ -d "$PHASES" ]] || { echo "missing setup-phases directory: $PHASES"; exit 1; }
+
+# --- Source helpers + phase definitions -------------------------------------
+# shellcheck disable=SC1091
+source "$PHASES/common.sh"
+for f in phase-0-check phase-1-intention phase-2-practice phase-3-lens \
+         phase-4-technical phase-5-bundles phase-6-scaffold \
+         phase-7-firstrun phase-8-handoff; do
+  # shellcheck disable=SC1090
+  source "$PHASES/$f.sh"
+done
+
+# --- Banner -----------------------------------------------------------------
+clear 2>/dev/null || true
+rust  "╭─ Steward ──────────────────────────────────────────────╮"
+rust  "│  A chief of staff for people who hold work as practice │"
+rust  "╰────────────────────────────────────────────────────────╯"
+echo
+dim   "  Repo:         $STEWARD_REPO"
+dim   "  Install to:   $STEWARD_HOME"
+dim   "  ~20 minutes. Take it at your pace. Ctrl-C to stop; re-run to resume."
+echo
+local_confirm=""
+read -rp "  ready to start? [Y/n] " local_confirm || true
+case "${local_confirm:-y}" in
+  n|N|no) echo "  nothing written. come back when you're ready."; exit 0 ;;
+esac
+
+# --- Run phases -------------------------------------------------------------
+phase_0_check    || { echo "phase 0 failed"; exit 1; }
+phase_1_intention
+phase_2_practice
+phase_3_lens
+phase_4_technical
+phase_5_bundles
+phase_6_scaffold
+phase_7_firstrun
+phase_8_handoff
