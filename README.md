@@ -136,18 +136,6 @@ steward/
 
 ---
 
-## Why this exists
-
-The hard part of solo or small-team work isn't the tasks. It's the lack of a steady
-reflective presence — the thing offices provide automatically: someone who sees the
-whole picture, notices drift, asks uncomfortable questions, holds the long thread when
-you've forgotten.
-
-Steward is that, tuned for people whose work is also their practice. It doesn't
-optimize your output; it holds you accountable to what you actually said you wanted.
-
----
-
 ## Contributing
 
 Fork freely, adapt for your context, contribute back when it serves. This is practice
