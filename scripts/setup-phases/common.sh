@@ -41,7 +41,7 @@ ask_yn() {
   while true; do
     printf '%s %s%s%s ' "$prompt" "$C_DIM" "$hint" "$C_RESET"
     read -r value || value=''
-    value="${value,,}"
+    value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')"
     value="${value:-$default}"
     case "$value" in
       y|yes) printf -v "$varname" '%s' 'y'; return 0 ;;

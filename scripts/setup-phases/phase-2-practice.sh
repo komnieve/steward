@@ -20,7 +20,7 @@ phase_2_practice() {
     "work-as-practice|Work-as-practice (UPEKHA) — how you do the work matters as much as what you ship"
   )
 
-  declare -g -a PRACTICE_SELECTED=()
+  PRACTICE_SELECTED=()
 
   local line key desc choice
   for line in "${components[@]}"; do

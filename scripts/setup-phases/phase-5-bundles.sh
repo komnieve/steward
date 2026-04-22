@@ -6,10 +6,10 @@ phase_5_bundles() {
   dim "Pick what you want. Most users start with defaults and add more later."
   echo
 
-  declare -g STEWARD_FEAT_RESEARCH="n"
-  declare -g STEWARD_FEAT_PEOPLE="n"
-  declare -g STEWARD_FEAT_STUCK="y"
-  declare -g STEWARD_FEAT_TIMEHOOK="y"
+  STEWARD_FEAT_RESEARCH="n"
+  STEWARD_FEAT_PEOPLE="n"
+  STEWARD_FEAT_STUCK="y"
+  STEWARD_FEAT_TIMEHOOK="y"
 
   ask_yn "  stuck-item tracker (tracks items you keep flagging, escalates the nudge)" STEWARD_FEAT_STUCK y
   ask_yn "  time-awareness injection (stamps every prompt with current time + elapsed since last)" STEWARD_FEAT_TIMEHOOK y
