@@ -29,7 +29,11 @@ PRIORITIES="${STEWARD_PRIORITIES:-$DASH_DIR/priorities.json}"
 LOG="${STEWARD_LOG:-$STEWARD_HOME/log/focus-dash-refresh.log}"
 
 STATUS_MD="${STEWARD_STATUS_MD:-}"
-STUCK_JSON="${STEWARD_STUCK_JSON:-$STEWARD_HOME/steward-stuck.json}"
+STUCK_JSON="${STEWARD_STUCK_JSON:-$STEWARD_HOME/stuck.json}"
+# Legacy fallback: older installs used steward-stuck.json
+if [ ! -f "$STUCK_JSON" ] && [ -f "$STEWARD_HOME/steward-stuck.json" ]; then
+  STUCK_JSON="$STEWARD_HOME/steward-stuck.json"
+fi
 ACTIVITY_DB="${STEWARD_ACTIVITY_DB:-$STEWARD_HOME/activity.db}"
 FOCUS_DB="${STEWARD_FOCUS_DB:-$STEWARD_HOME/personas/focus/focus.db}"
 PROJECT_DIR="${STEWARD_PROJECT_ROOT:-$PWD}"

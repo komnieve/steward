@@ -47,7 +47,7 @@ desk append-expand ID --kind K --heading H --body B [--copyable] [--release R]
 --action-url  "https://..."
 --log-project  xskel     ) when all --log-* flags are set, the item
 --log-category writing   ) gets a `log` block that desk done
---log-activity "..."     ) writes to ~/.claude/activity.db
+--log-activity "..."     ) writes to $STEWARD_HOME/activity.db
 --log-duration 60
 --log-notes "..."
 --expand-file path.json  load a pre-written expand block

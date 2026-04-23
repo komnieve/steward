@@ -146,7 +146,7 @@ def _read_focus(limit: int = 60, today_only: bool = False) -> dict:
 
 
 def _log_activity(entry: dict) -> None:
-    """Append a row to ~/.claude/activity.db."""
+    """Append a row to activity.db (path from STEWARD_ACTIVITY_DB env)."""
     if not entry:
         return
     try:
@@ -198,11 +198,26 @@ def _mark_undone(pid: str) -> dict:
         return {"ok": False, "error": f"not found: {pid}"}
 
 
-_OPEN_ROOT = os.environ.get("STEWARD_OPEN_ROOT") or os.path.expanduser("~")
-_OPEN_PROJECT_ROOT = os.environ.get("STEWARD_PROJECT_ROOT") or os.getcwd()
+_OPEN_PROJECT_ROOT = os.path.realpath(
+    os.environ.get("STEWARD_PROJECT_ROOT") or os.getcwd()
+)
+_OPEN_STEWARD_HOME = os.path.realpath(STEWARD_HOME)
+
+
+def _path_within(child: str, parent: str) -> bool:
+    """True iff `child` resolves under `parent` (or is `parent` itself)."""
+    if not parent:
+        return False
+    child_n = child.rstrip(os.sep)
+    parent_n = parent.rstrip(os.sep)
+    return child_n == parent_n or child_n.startswith(parent_n + os.sep)
 
 
 def _open_path(raw: str) -> dict:
+    # Security: the dashboard runs on 127.0.0.1 but a browser page on any origin
+    # can POST to it. Scope /api/open to STEWARD_PROJECT_ROOT and STEWARD_HOME
+    # only — not the whole home directory. Symlink traversal is resolved via
+    # realpath before the allow-list check.
     if not raw:
         return {"ok": False, "error": "missing path"}
     path = raw
@@ -214,8 +229,8 @@ def _open_path(raw: str) -> dict:
         real = os.path.realpath(path)
     except OSError as exc:
         return {"ok": False, "error": f"realpath failed: {exc}"}
-    if not real.startswith(_OPEN_ROOT + os.sep) and real != _OPEN_ROOT:
-        return {"ok": False, "error": f"outside allowed root: {real}"}
+    if not (_path_within(real, _OPEN_PROJECT_ROOT) or _path_within(real, _OPEN_STEWARD_HOME)):
+        return {"ok": False, "error": "path outside allowed roots (project or steward-home)"}
     if not os.path.exists(real):
         return {"ok": False, "error": f"not found: {real}"}
     try:
@@ -312,6 +327,12 @@ class Handler(SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
+        # Origin guard: the server listens on 127.0.0.1, but a webpage loaded
+        # in the browser on any origin could POST here. Require the Origin to
+        # be our own dashboard (or absent, which covers curl/tools invoked by
+        # the user directly).
+        if not self._origin_allowed():
+            return self.send_error(403, "forbidden origin")
         if self.path.startswith("/api/mark-done"):
             payload = self._read_body_json()
             return self._send_json(_mark_done(payload.get("id", "")))
@@ -324,6 +345,21 @@ class Handler(SimpleHTTPRequestHandler):
             payload = self._read_body_json()
             return self._send_json(_open_path(payload.get("path", "")))
         self.send_error(404)
+
+    def _origin_allowed(self) -> bool:
+        origin = self.headers.get("Origin", "") or self.headers.get("Referer", "")
+        if not origin:
+            # curl / local tooling typically sends no Origin — allow.
+            return True
+        allowed = {
+            f"http://127.0.0.1:{PORT}",
+            f"http://localhost:{PORT}",
+        }
+        # For Referer, strip path; for Origin, it's already scheme+host+port.
+        for allow in allowed:
+            if origin == allow or origin.startswith(allow + "/"):
+                return True
+        return False
 
     def _qs_get(self, key: str, default: str) -> str:
         if "?" not in self.path:

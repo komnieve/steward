@@ -55,6 +55,6 @@ Permanent record. One line per accomplishment. Ask "what did I get done this wee
 - **Work Log**: permanent, organized by week/month. Never trimmed. Answers "what did I get done?"
 
 **Relationship to other data stores:**
-- `~/.claude/activity.db` captures **events** (what happened, how long) — the steward reads this too, but it doesn't capture state changes
+- `~/.steward/activity.db` captures **events** (what happened, how long) — the steward reads this too, but it doesn't capture state changes
 - Git log captures **code commits** — the steward reads this too
 - Status.md is what the steward trusts for "where do things stand"

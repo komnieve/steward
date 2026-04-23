@@ -7,6 +7,12 @@ phase_6c_watcher() {
     dim "  focus watcher: skipped (macOS only, detected $STEWARD_OS)"
     return 0
   fi
+  # The vision pass needs multimodal input; only claude-code's CLI shape is
+  # wired for it today. Gate instead of installing a silently-broken bundle.
+  if [[ "$STEWARD_RUNTIME" != "claude-code" ]]; then
+    dim "  focus watcher: skipped (requires STEWARD_RUNTIME=claude-code; got $STEWARD_RUNTIME)"
+    return 0
+  fi
   heading "Phase 6c — focus watcher"
 
   local src="$STEWARD_REPO/personas/focus"

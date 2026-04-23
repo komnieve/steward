@@ -46,10 +46,16 @@ fi
 # Write current timestamp for next calculation
 echo "$NOW_EPOCH" > "$TIMESTAMP_FILE"
 
-# Get last activity from activity.db for gap awareness
+# Get last activity from activity.db for gap awareness.
+# Prefer $STEWARD_HOME/activity.db; fall back to legacy ~/.claude/activity.db for
+# users still running the older layout.
 LAST_ACTIVITY=""
-if [ -f "$HOME/.claude/activity.db" ]; then
-    LAST_ACTIVITY=$(sqlite3 "$HOME/.claude/activity.db" \
+ACTIVITY_DB="${STEWARD_HOME:-$HOME/.steward}/activity.db"
+if [ ! -f "$ACTIVITY_DB" ] && [ -f "$HOME/.claude/activity.db" ]; then
+    ACTIVITY_DB="$HOME/.claude/activity.db"
+fi
+if [ -f "$ACTIVITY_DB" ]; then
+    LAST_ACTIVITY=$(sqlite3 "$ACTIVITY_DB" \
         "SELECT timestamp || ' | ' || activity FROM activity_log ORDER BY timestamp DESC LIMIT 1;" 2>/dev/null)
 fi
 

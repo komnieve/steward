@@ -112,7 +112,7 @@ steward/
     personality-assessment.md
     ...
   templates/
-    steward-persona.md              ← the persona every run loads
+    steward-persona.md              ← copied to ~/.steward/persona.md; the runtime adapter loads it every run
     status.md
     transcription-corrections.md
     learning-edges-template.md

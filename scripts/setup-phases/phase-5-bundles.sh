@@ -24,10 +24,13 @@ phase_5_bundles() {
   ask_yn "  desk + tokens CLIs (priorities editor + token counter)" STEWARD_FEAT_TOOLS y
   ask_yn "  focus-dash (browser dashboard at localhost:8888; requires your runtime's CLI)" STEWARD_FEAT_DASH n
 
-  if [[ "$STEWARD_OS" == "macos" ]]; then
-    ask_yn "  focus watcher (periodic screenshot → mindfulness nudges; macOS only)" STEWARD_FEAT_WATCHER n
-  else
+  if [[ "$STEWARD_OS" == "macos" && "$STEWARD_RUNTIME" == "claude-code" ]]; then
+    ask_yn "  focus watcher (periodic screenshot → mindfulness nudges; macOS + claude-code only)" STEWARD_FEAT_WATCHER n
+  elif [[ "$STEWARD_OS" != "macos" ]]; then
     dim "  focus watcher — skipped (macOS only)"
+    STEWARD_FEAT_WATCHER="n"
+  else
+    dim "  focus watcher — skipped (the vision pass requires the claude-code runtime)"
     STEWARD_FEAT_WATCHER="n"
   fi
 
