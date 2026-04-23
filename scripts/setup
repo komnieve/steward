@@ -37,6 +37,7 @@ source "$PHASES/common.sh"
 for f in phase-0-check phase-1-intention phase-2-practice phase-3-lens \
          phase-4-technical phase-5-bundles phase-6-scaffold \
          phase-6a-tools phase-6b-focus-dash phase-6c-watcher \
+         phase-6d-practice-interactive \
          phase-7-firstrun phase-8-handoff; do
   # shellcheck disable=SC1090
   source "$PHASES/$f.sh"
@@ -69,5 +70,6 @@ phase_6_scaffold
 phase_6a_tools
 phase_6b_focus_dash
 phase_6c_watcher
+phase_6d_practice_interactive
 phase_7_firstrun
 phase_8_handoff

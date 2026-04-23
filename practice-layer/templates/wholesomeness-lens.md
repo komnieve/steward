@@ -1,5 +1,7 @@
 # Wholesomeness lens
 
+> *→ See [`../examples/contemplative-practitioner/wholesomeness-lens.md`](../examples/contemplative-practitioner/wholesomeness-lens.md) for a fetter-based worked example at depth.*
+
 **Wholesome = doesn't feed the patterns you've named; ideally, loosens them.**
 
 This is a negative test, not a positive one. Positive definitions of "wholesome" always

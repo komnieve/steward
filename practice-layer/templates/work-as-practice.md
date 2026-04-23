@@ -1,5 +1,7 @@
 # Work as practice
 
+> *→ See [`../examples/contemplative-practitioner/work-as-practice.md`](../examples/contemplative-practitioner/work-as-practice.md) for a worked example at depth.*
+
 The headline framing. How you do the work matters as much as what you ship.
 
 This is not a productivity optimization. It is a stance: the work itself is material

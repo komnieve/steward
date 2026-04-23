@@ -149,9 +149,10 @@ SQL
     "time_hook":     "${STEWARD_FEAT_TIMEHOOK:-n}",
     "research":      "${STEWARD_FEAT_RESEARCH:-n}",
     "people_table":  "${STEWARD_FEAT_PEOPLE:-n}",
-    "tools":         "${STEWARD_FEAT_TOOLS:-n}",
-    "focus_dash":    "${STEWARD_FEAT_DASH:-n}",
-    "focus_watcher": "${STEWARD_FEAT_WATCHER:-n}"
+    "tools":                 "${STEWARD_FEAT_TOOLS:-n}",
+    "focus_dash":            "${STEWARD_FEAT_DASH:-n}",
+    "focus_watcher":         "${STEWARD_FEAT_WATCHER:-n}",
+    "practice_interactive":  "${STEWARD_FEAT_PRACTICE_INTERACTIVE:-n}"
   }
 }
 EOF

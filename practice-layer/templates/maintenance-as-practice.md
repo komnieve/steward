@@ -1,5 +1,7 @@
 # Maintenance as practice
 
+> *→ See [`../examples/contemplative-practitioner/maintenance-as-practice.md`](../examples/contemplative-practitioner/maintenance-as-practice.md) for a worked example at depth.*
+
 Caring for the infrastructure of your life — your body, your desk, your sleep, your
 relationships, your files — is practice, not preamble to practice. It is not what you
 do *before* you start the "real work." It IS the work, in a register that isn't always

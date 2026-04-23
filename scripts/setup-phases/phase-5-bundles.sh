@@ -13,11 +13,13 @@ phase_5_bundles() {
   STEWARD_FEAT_TOOLS="y"
   STEWARD_FEAT_DASH="n"
   STEWARD_FEAT_WATCHER="n"
+  STEWARD_FEAT_PRACTICE_INTERACTIVE="n"
 
   ask_yn "  stuck-item tracker (tracks items you keep flagging, escalates the nudge)" STEWARD_FEAT_STUCK y
   ask_yn "  time-awareness injection (stamps every prompt with current time + elapsed since last)" STEWARD_FEAT_TIMEHOOK y
   ask_yn "  research-query tracking (structured prompt/response folders for deep research)" STEWARD_FEAT_RESEARCH n
   ask_yn "  people table (relational CRM with 'intention' field per person)" STEWARD_FEAT_PEOPLE n
+  ask_yn "  load Practice Layer in interactive sessions (wires ~/.steward/practice/ into your runtime's global config)" STEWARD_FEAT_PRACTICE_INTERACTIVE n
 
   echo
   dim "  ---"
