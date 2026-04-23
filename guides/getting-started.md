@@ -24,6 +24,12 @@ cd ~/repos/steward
 
 That's it. The setup script walks you through eight phases.
 
+> **A note on `project_root`:** if you enable `focus-dash` or the focus watcher,
+> setup asks for a **project_root** — the path to the work repo you want the
+> steward to read commits from. Running setup from the steward clone is fine, but
+> `project_root` should point at **your work repo**, not the steward clone itself.
+> Leave it blank to skip git-aware features.
+
 ---
 
 ## What the setup script does

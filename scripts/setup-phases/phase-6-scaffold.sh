@@ -92,8 +92,46 @@ SQL
   fi
 
   # --- project root (used by focus-dash + watcher to locate the git repo) ---
-  if [[ -z "${STEWARD_PROJECT_ROOT:-}" ]]; then
-    STEWARD_PROJECT_ROOT="$PWD"
+  # Avoid silently adopting the steward clone itself: the getting-started path
+  # tells users to run `cd ~/repos/steward && ./scripts/setup`, so $PWD often IS
+  # the steward repo — which is not what they want as `project_root`.
+  #
+  # Always initialize (empty string) so the config.json heredoc is safe under
+  # set -u, even when neither dash nor watcher are enabled.
+  : "${STEWARD_PROJECT_ROOT:=}"
+  if [[ "${STEWARD_FEAT_DASH:-n}" == "y" || "${STEWARD_FEAT_WATCHER:-n}" == "y" ]]; then
+    if [[ -z "$STEWARD_PROJECT_ROOT" ]]; then
+      local default_pr=""
+      # Resolve both paths and compare (handles symlinks).
+      local pwd_real repo_real
+      pwd_real="$(cd "$PWD" 2>/dev/null && pwd -P || echo "$PWD")"
+      repo_real="$(cd "$STEWARD_REPO" 2>/dev/null && pwd -P || echo "$STEWARD_REPO")"
+      if [[ "$pwd_real" != "$repo_real" ]]; then
+        default_pr="$PWD"
+      fi
+      echo
+      dim "  git-aware features need a 'project_root' — the path to YOUR work repo."
+      dim "  This is what focus-dash/watcher will 'git log' from. It should NOT be the steward clone."
+      # Two-step flow so "skip" is actually reachable. `ask` with a non-empty
+      # default substitutes blank input → the default, which would silently
+      # lock the user into $PWD even when they wanted to skip.
+      if [[ -n "$default_pr" ]]; then
+        local use_default
+        ask_yn "  use current directory ($default_pr) as project_root?" use_default y
+        if [[ "$use_default" == "y" ]]; then
+          STEWARD_PROJECT_ROOT="$default_pr"
+        else
+          ask "  project_root (absolute path to your work repo; blank to skip):" STEWARD_PROJECT_ROOT ""
+        fi
+      else
+        dim "  (current directory is the steward repo — won't suggest it as default.)"
+        ask "  project_root (absolute path to your work repo; blank to skip):" STEWARD_PROJECT_ROOT ""
+      fi
+      # Validate a non-blank choice
+      if [[ -n "$STEWARD_PROJECT_ROOT" && ! -d "$STEWARD_PROJECT_ROOT" ]]; then
+        rust "  warning: '$STEWARD_PROJECT_ROOT' is not a directory — storing anyway; fix in config.json later."
+      fi
+    fi
     export STEWARD_PROJECT_ROOT
   fi
 
@@ -105,7 +143,7 @@ SQL
   "runtime": "$STEWARD_RUNTIME",
   "delivery": "$STEWARD_DELIVERY",
   "schedule": "$STEWARD_SCHEDULE",
-  "project_root": "$STEWARD_PROJECT_ROOT",
+  "project_root": "${STEWARD_PROJECT_ROOT:-}",
   "features": {
     "stuck_tracker": "${STEWARD_FEAT_STUCK:-n}",
     "time_hook":     "${STEWARD_FEAT_TIMEHOOK:-n}",

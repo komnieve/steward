@@ -20,6 +20,8 @@
     <string>{{STEWARD_HOME}}</string>
     <key>STEWARD_PROJECT_ROOT</key>
     <string>{{STEWARD_PROJECT_ROOT}}</string>
+    <key>STEWARD_RUNTIME</key>
+    <string>{{STEWARD_RUNTIME}}</string>
   </dict>
 
   <key>RunAtLoad</key>

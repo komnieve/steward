@@ -245,13 +245,42 @@ def _open_path(raw: str) -> dict:
         return {"ok": False, "error": str(exc)}
 
 
+def _config_get(key: str) -> str:
+    """Read a top-level string field from config.json; empty on any failure."""
+    cfg_path = os.path.join(STEWARD_HOME, "config.json")
+    try:
+        with open(cfg_path) as f:
+            data = json.load(f)
+        v = data.get(key, "")
+        return "" if v is None else str(v)
+    except Exception:
+        return ""
+
+
 def _trigger_refresh() -> dict:
     """Spawn refresh.sh detached — returns immediately.
+
+    Passes an explicit env so the spawned script resolves to the *configured*
+    runtime and project_root, not whatever the server happened to inherit.
+    Launchd env injection is a convenience on macOS; correctness lives here.
     The dashboard will see the update via SSE when refresh.sh writes priorities.json.
     """
     script = os.path.join(ROOT, "refresh.sh")
     if not os.path.exists(script):
         return {"ok": False, "error": "refresh.sh not found"}
+
+    env = os.environ.copy()
+    env["STEWARD_HOME"] = STEWARD_HOME
+    # Prefer explicit env; fall back to config.json; leave unset rather than wrong.
+    if not env.get("STEWARD_RUNTIME"):
+        rt = _config_get("runtime")
+        if rt:
+            env["STEWARD_RUNTIME"] = rt
+    if not env.get("STEWARD_PROJECT_ROOT"):
+        pr = _config_get("project_root")
+        if pr:
+            env["STEWARD_PROJECT_ROOT"] = pr
+
     try:
         subprocess.Popen(
             ["/bin/bash", script, "api"],
@@ -260,6 +289,7 @@ def _trigger_refresh() -> dict:
             stdin=subprocess.DEVNULL,
             start_new_session=True,
             close_fds=True,
+            env=env,
         )
         return {"ok": True, "status": "triggered"}
     except Exception as exc:  # noqa: BLE001

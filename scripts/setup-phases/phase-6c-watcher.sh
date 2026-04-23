@@ -58,7 +58,7 @@ SQL
   render_template "$plist_src/com.steward.focus-loop.plist.template" \
     "$plist_dst/com.steward.focus-loop.plist" \
     "STEWARD_HOME=$STEWARD_HOME" \
-    "STEWARD_PROJECT_ROOT=${STEWARD_PROJECT_ROOT:-$PWD}" \
+    "STEWARD_PROJECT_ROOT=${STEWARD_PROJECT_ROOT:-}" \
     "STEWARD_RUNTIME=$STEWARD_RUNTIME"
   render_template "$plist_src/com.steward.quote-finder.plist.template" \
     "$plist_dst/com.steward.quote-finder.plist" \

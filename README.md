@@ -81,6 +81,12 @@ Practice Layer components, user lens, technical choices (runtime, delivery, sche
 optional features, scaffolding, first run, and handoff. At the end, your
 `~/.steward/` is configured to you.
 
+On macOS, you can use launchd for scheduled runs. On WSL/Linux, use cron or
+systemd — the scripts work the same way; only scheduling differs. If you enable
+focus-dash or the focus watcher, setup will ask for a `project_root` — point it
+at your actual work repo, not the steward clone (or leave blank to skip
+git-aware features).
+
 See [`guides/getting-started.md`](guides/getting-started.md) for the walkthrough.
 
 ---
