@@ -1,5 +1,7 @@
 # Ambition as question
 
+> *→ See [`../examples/contemplative-practitioner/ambition-as-question.md`](../examples/contemplative-practitioner/ambition-as-question.md) for a worked example at depth.*
+
 Not a mandate. A prompt.
 
 The question isn't "are you being ambitious enough?" — that framing turns into

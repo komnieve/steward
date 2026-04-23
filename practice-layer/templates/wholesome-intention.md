@@ -1,5 +1,7 @@
 # Wholesome intention
 
+> *→ See [`../examples/contemplative-practitioner/wholesome-intention.md`](../examples/contemplative-practitioner/wholesome-intention.md) for a worked example at depth.*
+
 A light reflective check — not a ritual.
 
 Before a meaningful action, or when reviewing the day's shape, pause briefly with:

@@ -1,5 +1,7 @@
 # True North
 
+> *→ See [`../examples/contemplative-practitioner/true-north.md`](../examples/contemplative-practitioner/true-north.md) for a worked example at depth.*
+
 A long-horizon orientation. Not a goal with a deadline. The compass that tells you
 whether a choice moves you toward or away from what you actually care about.
 

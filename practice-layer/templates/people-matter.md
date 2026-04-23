@@ -1,5 +1,7 @@
 # People matter
 
+> *→ See [`../examples/contemplative-practitioner/people-matter.md`](../examples/contemplative-practitioner/people-matter.md) for a worked example at depth.*
+
 The relationships you carry are not context for the work. They are the work, in a
 register the steward needs to hold explicitly.
 
