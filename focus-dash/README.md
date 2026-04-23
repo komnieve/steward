@@ -49,6 +49,8 @@ Each run takes ~60–90s on Claude Opus.
 
 ## Install (after `./scripts/setup` installs the bundle)
 
+### macOS (launchd — convenience; not required)
+
 The setup script renders the launchd plist templates and prints the `launchctl load` commands. If you skipped the auto-load, run:
 
 ```bash
@@ -59,7 +61,30 @@ launchctl list | grep focus-dash
 curl -sS http://127.0.0.1:8888/api/now
 ```
 
+Correctness does not depend on launchd — `refresh.sh` and `server.py` both resolve
+runtime/project/status from `~/.steward/config.json` on their own. Launchd just
+wires the env vars for a bit of extra robustness.
+
+### WSL / Linux (manual or cron / systemd)
+
+```bash
+# Run the server in a tmux pane or background process:
+STEWARD_HOME=~/.steward python3 ~/.steward/focus-dash/server.py
+
+# Schedule refresh via cron (9:15 / 13:30 / 18:15 on weekdays):
+crontab -e
+# 15 9,18 * * 1-5 STEWARD_HOME=$HOME/.steward $HOME/.steward/focus-dash/refresh.sh cron
+# 30 13  * * 1-5 STEWARD_HOME=$HOME/.steward $HOME/.steward/focus-dash/refresh.sh cron
+```
+
 Keep the tab pinned: `http://localhost:8888/`.
+
+### About `project_root`
+
+Setup asks for `project_root` during Phase 6 — this should be the path to **your
+work repo**, not the steward clone. `refresh.sh` uses it for the "recent git
+commits" section. If you leave it blank, the git section is simply omitted and
+everything else still works.
 
 ## Manual operations
 

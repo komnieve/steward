@@ -92,8 +92,34 @@ SQL
   fi
 
   # --- project root (used by focus-dash + watcher to locate the git repo) ---
-  if [[ -z "${STEWARD_PROJECT_ROOT:-}" ]]; then
-    STEWARD_PROJECT_ROOT="$PWD"
+  # Only set if focus-dash or watcher is enabled (the features that consume it).
+  # Avoid silently adopting the steward clone itself: the getting-started path
+  # tells users to run `cd ~/repos/steward && ./scripts/setup`, so $PWD often IS
+  # the steward repo — which is not what they want as `project_root`.
+  if [[ "${STEWARD_FEAT_DASH:-n}" == "y" || "${STEWARD_FEAT_WATCHER:-n}" == "y" ]]; then
+    if [[ -z "${STEWARD_PROJECT_ROOT:-}" ]]; then
+      local default_pr=""
+      # Resolve both paths and compare (handles symlinks).
+      local pwd_real repo_real
+      pwd_real="$(cd "$PWD" 2>/dev/null && pwd -P || echo "$PWD")"
+      repo_real="$(cd "$STEWARD_REPO" 2>/dev/null && pwd -P || echo "$STEWARD_REPO")"
+      if [[ "$pwd_real" != "$repo_real" ]]; then
+        default_pr="$PWD"
+      fi
+      echo
+      dim "  git-aware features need a 'project_root' — the path to YOUR work repo."
+      dim "  This is what focus-dash/watcher will 'git log' from. It should NOT be the steward clone."
+      if [[ -n "$default_pr" ]]; then
+        ask "  project_root (enter for '$default_pr', or blank to skip git context):" STEWARD_PROJECT_ROOT "$default_pr"
+      else
+        dim "  (current directory is the steward repo — won't suggest it as default.)"
+        ask "  project_root (absolute path to your work repo; blank to skip):" STEWARD_PROJECT_ROOT ""
+      fi
+      # Validate a non-blank choice
+      if [[ -n "$STEWARD_PROJECT_ROOT" && ! -d "$STEWARD_PROJECT_ROOT" ]]; then
+        rust "  warning: '$STEWARD_PROJECT_ROOT' is not a directory — storing anyway; fix in config.json later."
+      fi
+    fi
     export STEWARD_PROJECT_ROOT
   fi
 

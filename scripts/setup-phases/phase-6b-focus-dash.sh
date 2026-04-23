@@ -41,11 +41,12 @@ phase_6b_focus_dash() {
     render_template "$plist_src/com.steward.focus-dash.plist.template" \
       "$plist_dst/com.steward.focus-dash.plist" \
       "STEWARD_HOME=$STEWARD_HOME" \
-      "STEWARD_PROJECT_ROOT=${STEWARD_PROJECT_ROOT:-$PWD}"
+      "STEWARD_PROJECT_ROOT=${STEWARD_PROJECT_ROOT:-}" \
+      "STEWARD_RUNTIME=$STEWARD_RUNTIME"
     render_template "$plist_src/com.steward.focus-dash-refresh.plist.template" \
       "$plist_dst/com.steward.focus-dash-refresh.plist" \
       "STEWARD_HOME=$STEWARD_HOME" \
-      "STEWARD_PROJECT_ROOT=${STEWARD_PROJECT_ROOT:-$PWD}" \
+      "STEWARD_PROJECT_ROOT=${STEWARD_PROJECT_ROOT:-}" \
       "STEWARD_RUNTIME=$STEWARD_RUNTIME"
     sage "  rendered launchd plists → $plist_dst/"
 

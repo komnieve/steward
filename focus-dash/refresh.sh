@@ -24,11 +24,38 @@ unset CLAUDECODE
 
 DASH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STEWARD_HOME="${STEWARD_HOME:-$(cd "$DASH_DIR/.." && pwd)}"
+CONFIG_JSON="$STEWARD_HOME/config.json"
 PROMPT_FILE="$DASH_DIR/prompt.md"
 PRIORITIES="${STEWARD_PRIORITIES:-$DASH_DIR/priorities.json}"
 LOG="${STEWARD_LOG:-$STEWARD_HOME/log/focus-dash-refresh.log}"
 
-STATUS_MD="${STEWARD_STATUS_MD:-}"
+# Read a top-level string field from config.json using stdlib python3.
+# Returns empty string if config is missing, unparseable, or field absent.
+_cfg_get() {
+  local key="$1"
+  [ -f "$CONFIG_JSON" ] || { echo ""; return; }
+  python3 - "$CONFIG_JSON" "$key" <<'PY' 2>/dev/null
+import json, sys
+try:
+    with open(sys.argv[1]) as f:
+        d = json.load(f)
+    v = d.get(sys.argv[2], "")
+    if v is None:
+        v = ""
+    print(v)
+except Exception:
+    print("")
+PY
+}
+
+# Resolution order: env > config.json > sensible default.
+RUNTIME="${STEWARD_RUNTIME:-$(_cfg_get runtime)}"
+RUNTIME="${RUNTIME:-claude-code}"
+
+PROJECT_DIR="${STEWARD_PROJECT_ROOT:-$(_cfg_get project_root)}"
+# No $PWD fallback: unset => git section will skip cleanly.
+
+STATUS_MD="${STEWARD_STATUS_MD:-$STEWARD_HOME/status.md}"
 STUCK_JSON="${STEWARD_STUCK_JSON:-$STEWARD_HOME/stuck.json}"
 # Legacy fallback: older installs used steward-stuck.json
 if [ ! -f "$STUCK_JSON" ] && [ -f "$STEWARD_HOME/steward-stuck.json" ]; then
@@ -36,13 +63,12 @@ if [ ! -f "$STUCK_JSON" ] && [ -f "$STEWARD_HOME/steward-stuck.json" ]; then
 fi
 ACTIVITY_DB="${STEWARD_ACTIVITY_DB:-$STEWARD_HOME/activity.db}"
 FOCUS_DB="${STEWARD_FOCUS_DB:-$STEWARD_HOME/personas/focus/focus.db}"
-PROJECT_DIR="${STEWARD_PROJECT_ROOT:-$PWD}"
-RUNTIME="${STEWARD_RUNTIME:-claude-code}"
 
 TS=$(date '+%Y-%m-%d %H:%M:%S %Z')
 
 mkdir -p "$(dirname "$LOG")"
 echo "$TS: refresh starting (caller=${1:-unknown})" >> "$LOG"
+echo "$TS:   resolved runtime=$RUNTIME project_root=${PROJECT_DIR:-<unset>} status_md=$STATUS_MD" >> "$LOG"
 
 # Skip on weekends (match steward policy)
 DOW=$(date +%u)
@@ -89,7 +115,7 @@ OUT_JSON="$TMPDIR_REFRESH/out.json"
     echo "---"
     echo ""
   fi
-  if [ -d "$PROJECT_DIR/.git" ]; then
+  if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR/.git" ]; then
     echo "# Recent git commits (24h)"
     ( cd "$PROJECT_DIR" && git log --since='24 hours ago' --pretty=format:'- %h %s' 2>/dev/null | head -20 )
     echo ""
@@ -136,13 +162,22 @@ case "$RUNTIME" in
       rm -rf "$TMPDIR_REFRESH"
       exit 1
     fi
-    claude \
-      -p \
-      --model "$MODEL" \
-      --permission-mode dontAsk \
-      --max-turns 4 \
-      -d "$PROJECT_DIR" \
-      < "$FULL" > "$OUT_RAW" 2>> "$LOG"
+    if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+      claude \
+        -p \
+        --model "$MODEL" \
+        --permission-mode dontAsk \
+        --max-turns 4 \
+        -d "$PROJECT_DIR" \
+        < "$FULL" > "$OUT_RAW" 2>> "$LOG"
+    else
+      claude \
+        -p \
+        --model "$MODEL" \
+        --permission-mode dontAsk \
+        --max-turns 4 \
+        < "$FULL" > "$OUT_RAW" 2>> "$LOG"
+    fi
     EXIT=$?
     ;;
   codex)
@@ -151,7 +186,11 @@ case "$RUNTIME" in
       rm -rf "$TMPDIR_REFRESH"
       exit 1
     fi
-    ( cd "$PROJECT_DIR" && codex run "$(cat "$FULL")" ) > "$OUT_RAW" 2>> "$LOG"
+    if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
+      ( cd "$PROJECT_DIR" && codex run "$(cat "$FULL")" ) > "$OUT_RAW" 2>> "$LOG"
+    else
+      codex run "$(cat "$FULL")" > "$OUT_RAW" 2>> "$LOG"
+    fi
     EXIT=$?
     ;;
   *)
@@ -163,7 +202,7 @@ esac
 DUR=$(( $(date +%s) - START ))
 
 OUT_BYTES=$(wc -c < "$OUT_RAW" 2>/dev/null || echo 0)
-echo "$TS: claude exit=$EXIT duration=${DUR}s output=$OUT_BYTES bytes" >> "$LOG"
+echo "$TS: runtime=$RUNTIME exit=$EXIT duration=${DUR}s output=$OUT_BYTES bytes" >> "$LOG"
 
 if [ "$EXIT" -ne 0 ] || [ "$OUT_BYTES" -lt 50 ]; then
   echo "$TS: FAILED — runtime exit $EXIT, output too small" >> "$LOG"
