@@ -34,7 +34,7 @@ If you want the steward to check on your practice, add a section to the persona:
 Track practice sessions in the activity database:
 
 ```bash
-sqlite3 ~/.claude/activity.db "INSERT INTO activity_log
+sqlite3 ~/.steward/activity.db "INSERT INTO activity_log
   (timestamp, project, category, activity, duration_min, notes)
   VALUES (datetime('now', 'localtime'), 'personal', 'practice', 'Morning sit', 45, 'Vipassana, strong concentration');"
 ```

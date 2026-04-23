@@ -38,30 +38,48 @@ EOF
   fi
 
   # --- activity.db ---
+  # Schema: activity_log (with source/outcome) + research_queries (with
+  # slug/tags/paths for the research workflow). Promoted from the previous
+  # setup/create-activity-db.sh orphan.
   local db="$STEWARD_HOME/activity.db"
   if [[ ! -f "$db" ]]; then
     sqlite3 "$db" <<'SQL'
 CREATE TABLE activity_log (
-  id INTEGER PRIMARY KEY,
-  timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  project TEXT,
-  category TEXT,
-  activity TEXT,
-  duration_min INTEGER,
-  notes TEXT
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp TEXT DEFAULT (datetime('now', 'localtime')),
+    project TEXT,
+    category TEXT,
+    activity TEXT,
+    duration_min INTEGER,
+    notes TEXT,
+    source TEXT DEFAULT 'manual',
+    outcome TEXT
 );
-CREATE INDEX idx_activity_timestamp ON activity_log(timestamp);
-CREATE INDEX idx_activity_project ON activity_log(project);
 
-CREATE TABLE research_query (
-  id INTEGER PRIMARY KEY,
-  timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  folder TEXT,
-  title TEXT,
-  status TEXT,
-  model TEXT,
-  notes TEXT
+CREATE INDEX idx_activity_ts ON activity_log(timestamp);
+CREATE INDEX idx_activity_project ON activity_log(project);
+CREATE INDEX idx_activity_category ON activity_log(category);
+
+-- Research query tracking
+-- Use this to track prompts you send to external models (e.g., GPT, Claude)
+-- and their responses. Helps you maintain a library of deep research queries.
+CREATE TABLE research_queries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    project TEXT,
+    status TEXT DEFAULT 'draft',  -- draft, sent, received, reviewed
+    model TEXT,                    -- e.g., gpt-5-pro, claude-opus
+    tags TEXT,                     -- comma-separated
+    summary TEXT,
+    prompt_path TEXT,              -- relative path to prompt.md
+    response_path TEXT,            -- relative path to response.md
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    updated_at TEXT DEFAULT (datetime('now', 'localtime'))
 );
+
+CREATE INDEX idx_rq_project ON research_queries(project);
+CREATE INDEX idx_rq_status ON research_queries(status);
 SQL
     sage "  wrote $db"
   fi
@@ -100,6 +118,66 @@ SQL
 }
 EOF
   sage "  wrote $cfg"
+
+  # --- time-awareness hook (opt-in; Claude Code only) ---
+  # If the user said yes in phase 5 AND they're on claude-code, install the
+  # inject-time.sh hook into ~/.claude/hooks/ and register it in
+  # ~/.claude/settings.json. Merges into an existing settings.json if present.
+  if [[ "${STEWARD_FEAT_TIMEHOOK:-n}" == "y" ]] && [[ "$STEWARD_RUNTIME" == "claude-code" ]]; then
+    local cc_hooks="$HOME/.claude/hooks"
+    local cc_settings="$HOME/.claude/settings.json"
+    local hook_src="$STEWARD_REPO/hooks/inject-time.sh"
+    local hook_dst="$cc_hooks/inject-time.sh"
+    ensure_dir "$cc_hooks"
+    if [[ -f "$hook_src" ]]; then
+      cp "$hook_src" "$hook_dst"
+      chmod +x "$hook_dst"
+      sage "  installed time hook → $hook_dst"
+    fi
+    # Merge hook registration into settings.json (preserve existing hooks/config).
+    python3 - "$cc_settings" <<'PY' || rust "  could not merge $cc_settings; add the hook manually (see templates/settings.json)"
+import json, os, sys
+path = sys.argv[1]
+want = {
+  "type": "command",
+  "command": "~/.claude/hooks/inject-time.sh",
+  "timeout": 5
+}
+try:
+    if os.path.exists(path):
+        with open(path) as f:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            raise ValueError("settings.json is not an object")
+    else:
+        data = {}
+except Exception as e:
+    print(f"(could not parse {path}: {e}); skipping merge", file=sys.stderr)
+    sys.exit(1)
+
+hooks = data.setdefault("hooks", {})
+ups = hooks.setdefault("UserPromptSubmit", [])
+
+# Look for an existing entry that already registers our command.
+def has_cmd(node):
+    if not isinstance(node, dict):
+        return False
+    for h in node.get("hooks", []):
+        if isinstance(h, dict) and h.get("command") == want["command"]:
+            return True
+    return False
+
+if not any(has_cmd(entry) for entry in ups):
+    ups.append({"matcher": "", "hooks": [want]})
+
+os.makedirs(os.path.dirname(path), exist_ok=True)
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+print(f"  registered time hook in {path}")
+PY
+  elif [[ "${STEWARD_FEAT_TIMEHOOK:-n}" == "y" ]] && [[ "$STEWARD_RUNTIME" != "claude-code" ]]; then
+    dim "  time hook: skipped (requires claude-code runtime)"
+  fi
 
   # --- runtime adapter ---
   case "$STEWARD_RUNTIME" in

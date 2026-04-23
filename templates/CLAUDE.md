@@ -141,12 +141,14 @@ This is the **primary source of truth** the steward reads to understand where th
 
 **THIS FILE MUST BE UPDATED EVERY SESSION.** When a thread changes state (started, shipped, blocked, killed), update it here. When a deadline passes or changes, update it here. When a new thread opens, add it here. The steward re-reads this file cold every morning and evening with no memory of prior runs — if status.md is stale, the steward will give wrong assessments.
 
-### 2. `~/.claude/activity.db` — EVENTS
+### 2. `~/.steward/activity.db` — EVENTS
+
+The steward uses `~/.steward/activity.db`. (The time-awareness hook reads this path too.)
 
 The SQLite activity log captures **what happened and when**. It answers: "What did we do today? How long did it take?"
 
 ```bash
-sqlite3 ~/.claude/activity.db "INSERT INTO activity_log (timestamp, project, category, activity, duration_min, notes) VALUES (datetime('now', 'localtime'), 'PROJECT', 'CATEGORY', 'WHAT YOU DID', MINUTES, 'DETAILS');"
+sqlite3 ~/.steward/activity.db "INSERT INTO activity_log (timestamp, project, category, activity, duration_min, notes) VALUES (datetime('now', 'localtime'), 'PROJECT', 'CATEGORY', 'WHAT YOU DID', MINUTES, 'DETAILS');"
 ```
 
 - **project**: [your project names here]
@@ -165,13 +167,13 @@ Captures what was committed. The steward reads recent commits to see code-level 
 
 ### How the steward uses these
 
-The steward (`~/.claude/steward-persona.md`) runs on cron (9am and 6pm) with no memory across runs. Each time it:
+The steward (`~/.steward/persona.md`) runs on cron (morning and evening) with no memory across runs. Each time it:
 1. Reads `work/status.md` for current state of all threads
 2. Queries the activity log for recent events
 3. Reads the git log for recent commits
 4. Reads project files in `work/`
 5. Compares what's getting attention against what matters
-6. Sends a Signal message with its assessment
+6. Delivers its assessment per your configured channel (terminal / Slack / etc.)
 
 If status.md is stale, the steward's assessment is wrong.
 

@@ -6,16 +6,14 @@ Git commits only capture code changes. Most of your actual work — meetings, ca
 
 ## The Solution: SQLite Activity Log
 
-A simple SQLite database at `~/.claude/activity.db` that captures work events with timestamps, duration, and context.
+A simple SQLite database at `~/.steward/activity.db` that captures work events with timestamps, duration, and context.
 
 ## Setup
 
-```bash
-# Run the setup script
-bash setup/create-activity-db.sh
+The main `./scripts/setup` creates `~/.steward/activity.db` automatically. If you want to create it manually or understand the schema:
 
-# Or create manually
-sqlite3 ~/.claude/activity.db << 'EOF'
+```bash
+sqlite3 ~/.steward/activity.db << 'EOF'
 CREATE TABLE activity_log (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     timestamp TEXT DEFAULT (datetime('now', 'localtime')),
@@ -74,14 +72,14 @@ Tell Claude to log activities at natural transition points:
 
 Claude will run:
 ```bash
-sqlite3 ~/.claude/activity.db "INSERT INTO activity_log
+sqlite3 ~/.steward/activity.db "INSERT INTO activity_log
   (timestamp, project, category, activity, duration_min, notes)
   VALUES (datetime('now', 'localtime'), 'client-x', 'meeting', 'Roadmap discussion', 30, 'Agreed on Q2 priorities');"
 ```
 
 ### From the command line
 ```bash
-sqlite3 ~/.claude/activity.db "INSERT INTO activity_log
+sqlite3 ~/.steward/activity.db "INSERT INTO activity_log
   (timestamp, project, category, activity, duration_min, notes)
   VALUES (datetime('now', 'localtime'), 'myapp', 'coding', 'Built auth module', 90, 'JWT + refresh tokens');"
 ```
@@ -89,7 +87,7 @@ sqlite3 ~/.claude/activity.db "INSERT INTO activity_log
 ### Retroactive logging
 If you forgot to log something earlier:
 ```bash
-sqlite3 ~/.claude/activity.db "INSERT INTO activity_log
+sqlite3 ~/.steward/activity.db "INSERT INTO activity_log
   (timestamp, project, category, activity, duration_min, notes)
   VALUES ('2026-03-06 14:00:00', 'myapp', 'deployment', 'Production deploy v2.1', 45, 'Zero downtime');"
 ```
@@ -98,25 +96,25 @@ sqlite3 ~/.claude/activity.db "INSERT INTO activity_log
 
 ```bash
 # Recent activity (last 7 days)
-sqlite3 -header -column ~/.claude/activity.db \
+sqlite3 -header -column ~/.steward/activity.db \
   "SELECT * FROM activity_log WHERE timestamp >= datetime('now', '-7 days', 'localtime') ORDER BY timestamp;"
 
 # Hours by project this week
-sqlite3 -header -column ~/.claude/activity.db \
+sqlite3 -header -column ~/.steward/activity.db \
   "SELECT project, printf('%.1f hrs', SUM(duration_min)/60.0) as hours
    FROM activity_log
    WHERE timestamp >= datetime('now', '-7 days', 'localtime')
    GROUP BY project ORDER BY hours DESC;"
 
 # Hours by category today
-sqlite3 -header -column ~/.claude/activity.db \
+sqlite3 -header -column ~/.steward/activity.db \
   "SELECT category, printf('%.1f hrs', SUM(duration_min)/60.0) as hours
    FROM activity_log
    WHERE date(timestamp) = date('now', 'localtime')
    GROUP BY category ORDER BY hours DESC;"
 
 # Total hours this month
-sqlite3 ~/.claude/activity.db \
+sqlite3 ~/.steward/activity.db \
   "SELECT printf('%.1f hours', SUM(duration_min)/60.0)
    FROM activity_log
    WHERE timestamp >= date('now', 'start of month', 'localtime');"

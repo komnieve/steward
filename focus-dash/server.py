@@ -146,7 +146,7 @@ def _read_focus(limit: int = 60, today_only: bool = False) -> dict:
 
 
 def _log_activity(entry: dict) -> None:
-    """Append a row to ~/.claude/activity.db."""
+    """Append a row to activity.db (path from STEWARD_ACTIVITY_DB env)."""
     if not entry:
         return
     try:
