@@ -73,6 +73,12 @@ SQL
     sage "  wrote $stuck"
   fi
 
+  # --- project root (used by focus-dash + watcher to locate the git repo) ---
+  if [[ -z "${STEWARD_PROJECT_ROOT:-}" ]]; then
+    STEWARD_PROJECT_ROOT="$PWD"
+    export STEWARD_PROJECT_ROOT
+  fi
+
   # --- config.json ---
   local cfg="$STEWARD_HOME/config.json"
   cat > "$cfg" <<EOF
@@ -81,11 +87,15 @@ SQL
   "runtime": "$STEWARD_RUNTIME",
   "delivery": "$STEWARD_DELIVERY",
   "schedule": "$STEWARD_SCHEDULE",
+  "project_root": "$STEWARD_PROJECT_ROOT",
   "features": {
     "stuck_tracker": "${STEWARD_FEAT_STUCK:-n}",
     "time_hook":     "${STEWARD_FEAT_TIMEHOOK:-n}",
     "research":      "${STEWARD_FEAT_RESEARCH:-n}",
-    "people_table":  "${STEWARD_FEAT_PEOPLE:-n}"
+    "people_table":  "${STEWARD_FEAT_PEOPLE:-n}",
+    "tools":         "${STEWARD_FEAT_TOOLS:-n}",
+    "focus_dash":    "${STEWARD_FEAT_DASH:-n}",
+    "focus_watcher": "${STEWARD_FEAT_WATCHER:-n}"
   }
 }
 EOF
