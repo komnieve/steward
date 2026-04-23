@@ -85,12 +85,12 @@ Use consistent categories so you can analyze how your time is distributed:
 
 ## Logging Activities
 
-### During Claude Code sessions
-Tell Claude to log activities at natural transition points:
+### During interactive sessions
+Tell the runtime (Claude Code, Codex, etc.) to log activities at natural transition points:
 
 > "Log that meeting — 30 minutes, discussed roadmap with the client"
 
-Claude will run:
+It will run:
 ```bash
 sqlite3 ~/.steward/activity.db "INSERT INTO activity_log
   (timestamp, project, category, activity, duration_min, notes)
@@ -142,7 +142,7 @@ sqlite3 ~/.steward/activity.db \
 
 ## How the Steward Uses This
 
-The morning and evening scripts query the activity database and include the results in the prompt sent to Claude. This means the steward sees:
+The morning and evening scripts query the activity database and include the results in the prompt sent to the configured runtime. This means the steward sees:
 - What you actually did (not just what code you committed)
 - How long things took
 - Which projects are getting attention

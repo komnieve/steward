@@ -1,11 +1,11 @@
 # Learning Edges
 
-A living document of areas where you're pushing your understanding. Updated by you and Claude together during sessions. Used by the steward for spaced retrieval practice.
+A living document of areas where you're pushing your understanding. Updated by you and your runtime together during sessions. Used by the steward for spaced retrieval practice.
 
 **How to use this file:**
 - Add a new section when you notice yourself deferring something because you don't understand it (not just for efficiency)
 - Be honest about your current level — the point is accuracy, not ego
-- Let Claude generate retrieval questions after teaching moments
+- Let the runtime generate retrieval questions after teaching moments
 - Review periodically: move things to "Pushed Through" when they're no longer edges
 - The steward can pull questions from here for Signal check-ins
 

@@ -8,7 +8,7 @@ When the steward knows that you avoid shipping because visibility triggers anxie
 
 ## Prerequisites
 
-This process works best after you've used Claude Code for **at least 5-10 working sessions**. Claude needs enough interaction history to observe real patterns — not just what you say about yourself, but how you actually work. If you're just starting out, use Claude Code on real work for a week or two first, then come back to this.
+This process works best after **at least 5-10 real working sessions with the same runtime** (Claude Code, Codex, etc.). The runtime needs enough interaction history to observe real patterns — not just what you say about yourself, but how you actually work. If you're just starting out, use it on real work for a week or two first, then come back to this.
 
 You'll also want a `work/` directory in your project for storing the observations and assessment files. If you're using the steward template, this already exists.
 
@@ -16,12 +16,12 @@ You'll also want a `work/` directory in your project for storing the observation
 
 ### Phase 1: Observations (1-2 sessions)
 
-Before the assessment conversation, Claude needs data. Work together for a few sessions and let Claude observe patterns. Then ask it to write up what it sees.
+Before the assessment conversation, the runtime needs data. Work together for a few sessions and let it observe patterns. Then ask it to write up what it sees.
 
 Prompt:
 > "Based on our sessions together, write up your observations about my working patterns, strengths, and blind spots. Be honest. Put it in `work/personality-observations.md`."
 
-Claude will notice things like:
+It will notice things like:
 - When you're energized vs. drained
 - What you avoid and what you lean into
 - How you respond to pressure
@@ -30,12 +30,12 @@ Claude will notice things like:
 
 ### Phase 2: The Guided Conversation (1 session, ~60-90 minutes)
 
-This is a structured conversation where Claude asks questions and you answer honestly. The goal is depth, not breadth. Some questions will be easy. Some will hit nerve.
+This is a structured conversation where the runtime asks questions and you answer honestly. The goal is depth, not breadth. Some questions will be easy. Some will hit nerve.
 
 Start with:
 > "Let's do the personality assessment conversation. I want you to ask me questions to understand who I am — not my resume, but how I actually work, what drives me, what I avoid, what I'm afraid of. Be direct. I'll be honest."
 
-### How Claude Should Facilitate
+### How to Facilitate
 
 This is not a questionnaire. Don't just run down the list. The questions below are starting points — the real signal comes from follow-ups.
 
@@ -96,7 +96,7 @@ Work through these roughly in order. The earlier questions build trust and conte
 
 ### Estimating Psychological Frameworks
 
-After the conversation, Claude should estimate the person's profile across standard frameworks. These aren't tests — they're pattern-matching from real answers. Include evidence for each estimate.
+After the conversation, the runtime should estimate the person's profile across standard frameworks. These aren't tests — they're pattern-matching from real answers. Include evidence for each estimate.
 
 - **Big Five (OCEAN)**: Rate each dimension (Openness, Conscientiousness, Extraversion, Agreeableness, Neuroticism) as low/moderate/high with specific evidence from the conversation. Example: "High Openness — drawn to novel frameworks, builds cross-domain connections, bored by routine execution."
 - **MBTI approximation**: Estimate the 4-letter type but hold it loosely. Note where the person falls clearly vs. where they're near the middle.
@@ -105,7 +105,7 @@ After the conversation, Claude should estimate the person's profile across stand
 
 ### Phase 3: The Written Assessment
 
-After the conversation, ask Claude to write up a comprehensive assessment.
+After the conversation, ask for a comprehensive write-up.
 
 Prompt:
 > "Write up the personality assessment based on our conversation and your observations. Include: core identity, what energizes/drains me, working patterns, psychological tendencies (Big Five, MBTI, Enneagram if relevant), strengths profile, and what this means for how I should work. Put it in `work/personality-assessment.md`."
@@ -125,9 +125,9 @@ The assessment should cover:
 
 Once the assessment exists, integrate it into two places so both your interactive sessions and autonomous check-ins are informed by it.
 
-#### 1. CLAUDE.md — "Who You Are" Working Context
+#### 1. Session-instructions file — "Who You Are" Working Context
 
-Add a section to your CLAUDE.md that gives Claude the operational context it needs. This isn't the full assessment — it's the working summary. Structure it like this:
+Add a section to your runtime's session-instructions file (`CLAUDE.md`, `AGENTS.md`, etc.) that gives it the operational context it needs. This isn't the full assessment — it's the working summary. Structure it like this:
 
 ```markdown
 ## Who [Your Name] Is — Working Context
@@ -137,7 +137,7 @@ Read this every session. It shapes how you work together.
 **Core pattern**: [1-2 sentences on the central dynamic that drives your work behavior.
 Example: "Avoids visibility and external testing due to fear of being found lacking."]
 
-**How this shows up in work**: [Specific behavioral patterns Claude should watch for.
+**How this shows up in work**: [Specific behavioral patterns to watch for.
 Example: "Specs get written but outreach doesn't start. Configs are ready but
 don't get deployed. The work isn't hard — the exposure is."]
 
@@ -149,7 +149,7 @@ Time-boxing. When stuck, asking: 'Is fear making this decision, or are you?'"]
 
 **Growth edges**: [Where the biggest leverage is for improvement.]
 
-**How to work with him/her**: [Specific instructions for Claude's tone and approach.
+**How to work with him/her**: [Specific instructions for tone and approach.
 Example: "Compassion AND follow-through, always together. Don't coddle, don't shame.
 Name what's true and ask what's next."]
 

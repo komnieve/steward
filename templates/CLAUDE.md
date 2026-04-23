@@ -1,5 +1,7 @@
 # Claude Code Project Instructions
 
+> This template is a **Claude Code-specific example** of the broader session-instructions pattern. If you're using a different runtime (Codex, etc.), translate the concepts into that runtime's equivalent file (`AGENTS.md`, etc.) — the ideas port over, the filename and a few mechanics don't.
+
 ## Context Recovery
 
 When sessions end unexpectedly or context is lost, check `docs/session-notes/` or project status files to recover state before continuing work.

@@ -49,7 +49,7 @@ Permanent record. One line per accomplishment. Ask "what did I get done this wee
 
 **This file is the steward's primary source of truth.** The steward reads this file cold every morning and evening with zero memory of prior runs. If this file is stale, the steward gives wrong assessments.
 
-- **Claude updates this every session** — especially when threads change state (started, shipped, blocked, killed)
+- **Update this every session** — especially when threads change state (started, shipped, blocked, killed)
 - **Deadlines** section: hard dates only — things that will expire or be missed. Remove or update when they pass.
 - **Active Projects**: living status of every open thread, organized by project. This is STATE, not history.
 - **Work Log**: permanent, organized by week/month. Never trimmed. Answers "what did I get done?"

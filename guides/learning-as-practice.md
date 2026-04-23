@@ -4,7 +4,7 @@
 
 AI models are incredible thinking partners. They're also the fastest way to stop learning.
 
-When you can ask Claude to explain any concept, write any code, solve any problem — the temptation is to let it. And it works. The code ships, the email gets sent, the architecture gets designed. But something quietly erodes: your own understanding deepens at the surface level and stalls at the edges.
+When you can ask a model to explain any concept, write any code, solve any problem — the temptation is to let it. And it works. The code ships, the email gets sent, the architecture gets designed. But something quietly erodes: your own understanding deepens at the surface level and stalls at the edges.
 
 This is the bargain nobody talks about. You get faster. You also get more dependent. The model handles the hard parts, and the hard parts are exactly where learning happens.
 
@@ -42,7 +42,7 @@ That concept evolved. If spaced retrieval practice works for book knowledge, it 
 
 ## Learning Edge Detection
 
-This is the core mechanism. Add this to your CLAUDE.md:
+This is the core mechanism. Add this to your runtime's session-instructions file (`CLAUDE.md`, `AGENTS.md`, etc.):
 
 ```markdown
 ## Learning Edge Detection
@@ -74,7 +74,7 @@ The `learning-edges.md` file is a living document. It tracks:
 - **The domain**: what area you're pushing into
 - **Current level**: honest assessment of where you are
 - **The boundary**: specifically what you don't understand yet
-- **Retrieval questions**: questions Claude generates to test your understanding over time
+- **Retrieval questions**: questions generated to test your understanding over time
 
 Example entry:
 
@@ -95,9 +95,9 @@ See the [template](../templates/learning-edges-template.md) for a blank version 
 
 ## How This Works in Practice
 
-**During sessions**: Claude notices when you're deferring something you don't understand. It offers a choice — handle it for you (no judgment) or use it as a teaching moment. If you choose to learn, it scaffolds instead of solving. It asks you questions, gives hints, lets you struggle productively.
+**During sessions**: your runtime notices when you're deferring something you don't understand. It offers a choice — handle it for you (no judgment) or use it as a teaching moment. If you choose to learn, it scaffolds instead of solving. It asks you questions, gives hints, lets you struggle productively.
 
-**Between sessions**: Claude (or the steward, if you set it up) can deliver spaced retrieval questions. "Two weeks ago you were learning about Kubernetes networking. Quick check: what's the difference between a ClusterIP and a NodePort service?" This turns dead time into learning reinforcement.
+**Between sessions**: your runtime (or the steward, if you set it up) can deliver spaced retrieval questions. "Two weeks ago you were learning about Kubernetes networking. Quick check: what's the difference between a ClusterIP and a NodePort service?" This turns dead time into learning reinforcement.
 
 **Over time**: The learning-edges file becomes a map of your growth. You can see what you've pushed through, what's still at the boundary, and where you've plateaued. It's also useful context for the steward — when it sees you avoiding something that's on your learning edges list, it can be more specific in its nudge.
 

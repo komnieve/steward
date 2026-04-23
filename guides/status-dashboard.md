@@ -66,14 +66,14 @@ One line per accomplishment. Concrete. Answer "what did I get done this week?" a
 ## Update Discipline
 
 ### When to update
-- **Every session** — Claude should update status.md when threads change state
+- **Every session** — update status.md during interactive sessions when threads change state
 - When a thread starts, ships, gets blocked, or gets killed
 - When a deadline passes or changes
 - When a new thread opens
 - When a significant decision is made
 
-### What Claude should do
-Include this instruction in your CLAUDE.md:
+### Session instruction
+Include this in your runtime's session-instructions file (`CLAUDE.md`, `AGENTS.md`, etc.):
 
 > "Update work/status.md every session — especially when threads change state (started, shipped, blocked, killed). The steward reads this file cold with no memory."
 

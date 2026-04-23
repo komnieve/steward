@@ -17,7 +17,7 @@ Integrating practice doesn't mean meditating at your desk. It means:
 ## How It Works in the Steward System
 
 ### 1. UPEKHA.md (or whatever you name it)
-A file in your project root that captures your practice philosophy. Claude reads it during session start and uses it as context. It doesn't force practice on you — it holds the frame.
+A file in your project root that captures your practice philosophy. Your runtime reads it during session start and uses it as context. It doesn't force practice on you — it holds the frame.
 
 ### 2. Steward persona integration
 If you want the steward to check on your practice, add a section to the persona:
