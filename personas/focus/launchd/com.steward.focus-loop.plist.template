@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.steward.focus-loop</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>{{STEWARD_HOME}}/personas/focus/focus-loop.sh</string>
+        <string>5</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>{{STEWARD_HOME}}/log/focus-loop.out</string>
+    <key>StandardErrorPath</key>
+    <string>{{STEWARD_HOME}}/log/focus-loop.err</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>STEWARD_HOME</key>
+        <string>{{STEWARD_HOME}}</string>
+        <key>STEWARD_PROJECT_ROOT</key>
+        <string>{{STEWARD_PROJECT_ROOT}}</string>
+        <key>STEWARD_RUNTIME</key>
+        <string>{{STEWARD_RUNTIME}}</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin</string>
+    </dict>
+</dict>
+</plist>

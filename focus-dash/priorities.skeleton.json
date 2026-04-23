@@ -1,0 +1,39 @@
+{
+  "meta_override": null,
+  "subtitle": "Your focus dashboard. Edit this text in priorities.json or via: desk subtitle \"...\"",
+  "northstar": {
+    "horizon": "this week",
+    "text": "What would make this week great — not just done? Set it via: desk northstar \"...\""
+  },
+  "today": [
+    {
+      "id": "first-priority",
+      "title": "Pick the one thing that matters most right now",
+      "context": "This is a starter item. Replace it with a real priority via `desk add-today --title \"...\"` or by running the refresh (see README).",
+      "estimate": "~5 min",
+      "log": {
+        "project": "general",
+        "category": "planning",
+        "activity": "Set first focus-dash priority",
+        "duration_min": 5,
+        "notes": "First use of focus-dash."
+      },
+      "expand": {
+        "sections": [
+          {
+            "kind": "action",
+            "heading": "Do this now",
+            "body": "Open priorities.json, or run `desk add-today --title \"...\"`. Write a real priority: something concrete that ships today. Then delete this starter item with `desk remove first-priority`."
+          },
+          {
+            "kind": "note",
+            "heading": "How this works",
+            "body": "The dashboard pushes updates live via SSE. Run `./scripts/refresh.sh manual` to let the configured LLM regenerate this file from your activity context."
+          }
+        ]
+      }
+    }
+  ],
+  "done": [],
+  "if_theres_room": []
+}

@@ -1,0 +1,6 @@
+focus.db
+focus.db-journal
+focus.db-wal
+focus.db-shm
+screenshots/
+*.log

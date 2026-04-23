@@ -1,0 +1,452 @@
+#!/usr/bin/env python3
+"""desk — CLI for mutating steward/focus-dash/priorities.json.
+
+Keeps edits atomic (flock + tempfile rename) and preserves the file's watcher
+contract with focus-dash server.py — mtime changes broadcast to SSE.
+
+Commands:
+    desk list [SECTION]                  list items (default: all sections)
+    desk show ID                         print one item as pretty JSON
+    desk add-today --title T [...]       add a "today" priority
+    desk add-room  --title T [...]       add an "if_theres_room" item
+    desk done ID                         move today -> done, log to activity.db
+    desk undone ID                       reverse done -> today
+    desk remove ID                       delete item from any section
+    desk move ID --to SECTION            move item between sections
+    desk set ID FIELD VALUE              set a top-level field (title/context/estimate)
+    desk northstar TEXT [--horizon H]    update northstar block
+    desk subtitle TEXT                   update dashboard subtitle
+    desk from-file PATH --to SECTION     add a full JSON item from a file
+    desk clear-done                      wipe done[] (fresh morning)
+    desk append-expand ID --kind K --heading H --body B [--copyable] [--release R]
+
+IDs must be unique across the file. Sections are: today, done, if_theres_room.
+"""
+from __future__ import annotations
+
+import argparse
+import contextlib
+import fcntl
+import json
+import os
+import sqlite3
+import sys
+from datetime import datetime
+from typing import Any
+
+def _resolve_priorities() -> str:
+    if env := os.environ.get("STEWARD_PRIORITIES"):
+        return env
+    if home := os.environ.get("STEWARD_HOME"):
+        return os.path.join(home, "focus-dash", "priorities.json")
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(root, "focus-dash", "priorities.json")
+
+
+def _resolve_activity_db() -> str:
+    if env := os.environ.get("STEWARD_ACTIVITY_DB"):
+        return env
+    if home := os.environ.get("STEWARD_HOME"):
+        return os.path.join(home, "activity.db")
+    return os.path.expanduser("~/.steward/activity.db")
+
+
+PRIORITIES = _resolve_priorities()
+ACTIVITY_DB = _resolve_activity_db()
+SECTIONS = ("today", "done", "if_theres_room")
+
+
+# ---------- file io ---------------------------------------------------------
+
+
+@contextlib.contextmanager
+def locked_priorities():
+    """Open priorities.json under an exclusive flock; yield parsed dict.
+
+    On normal exit, writes the mutated dict back atomically (truncate + write
+    under the same lock). On exception, nothing is written.
+    """
+    fd = os.open(PRIORITIES, os.O_RDWR | os.O_CREAT)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        raw = os.read(fd, 16 * 1024 * 1024).decode("utf-8") or "{}"
+        data = json.loads(raw)
+        yield data
+        serialized = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+        os.lseek(fd, 0, 0)
+        os.ftruncate(fd, 0)
+        os.write(fd, serialized.encode("utf-8"))
+    finally:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+        os.close(fd)
+
+
+# ---------- helpers ---------------------------------------------------------
+
+
+def die(msg: str, code: int = 1) -> None:
+    print(f"desk: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def slugify(text: str) -> str:
+    slug = "".join(c.lower() if c.isalnum() else "-" for c in text)
+    while "--" in slug:
+        slug = slug.replace("--", "-")
+    slug = slug.strip("-")
+    return slug[:40] or "item"
+
+
+def unique_id(data: dict, base: str) -> str:
+    existing = {
+        item.get("id")
+        for section in SECTIONS
+        for item in data.get(section, [])
+        if isinstance(item, dict)
+    }
+    candidate = base
+    n = 2
+    while candidate in existing:
+        candidate = f"{base}-{n}"
+        n += 1
+    return candidate
+
+
+def find_item(data: dict, key: str) -> tuple[str, int, dict] | None:
+    """Match by id first, then by exact title. Returns (section, index, item)."""
+    for section in SECTIONS:
+        items = data.get(section, [])
+        for i, item in enumerate(items):
+            if isinstance(item, dict) and item.get("id") == key:
+                return section, i, item
+    for section in SECTIONS:
+        items = data.get(section, [])
+        for i, item in enumerate(items):
+            if isinstance(item, dict) and item.get("title") == key:
+                return section, i, item
+    return None
+
+
+def log_activity(entry: dict | None) -> None:
+    if not entry:
+        return
+    try:
+        con = sqlite3.connect(ACTIVITY_DB, timeout=2.0)
+        con.execute(
+            """
+            INSERT INTO activity_log
+              (timestamp, project, category, activity, duration_min, notes)
+            VALUES (datetime('now', 'localtime'), ?, ?, ?, ?, ?)
+            """,
+            (
+                entry.get("project", "general"),
+                entry.get("category", "admin"),
+                entry.get("activity", ""),
+                int(entry.get("duration_min") or 0) or None,
+                entry.get("notes", ""),
+            ),
+        )
+        con.commit()
+        con.close()
+    except Exception as exc:  # noqa: BLE001
+        print(f"desk: activity log write failed: {exc}", file=sys.stderr)
+
+
+# ---------- commands --------------------------------------------------------
+
+
+def cmd_list(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        sections = [args.section] if args.section else list(SECTIONS)
+        for section in sections:
+            items = data.get(section, [])
+            if section == "today":
+                items_desc = [(i.get("id", "?"), i.get("title", "?"), i.get("estimate", "")) for i in items]
+            elif section == "done":
+                items_desc = [(i.get("id", "?"), i.get("title", "?"), i.get("done_at", "")) for i in items]
+            else:  # if_theres_room — simple objects
+                items_desc = [(str(idx), i.get("title", "?"), i.get("context", "")) for idx, i in enumerate(items)]
+            print(f"\n[{section}] ({len(items)})")
+            if not items_desc:
+                print("  (empty)")
+                continue
+            for id_, title, tail in items_desc:
+                tail_str = f"  — {tail}" if tail else ""
+                print(f"  {id_:<28} {title}{tail_str}")
+
+        ns = data.get("northstar") or {}
+        print(f"\nnorthstar ({ns.get('horizon', '?')}): {ns.get('text', '(none)')}")
+        print(f"subtitle: {data.get('subtitle', '(none)')}\n")
+
+
+def cmd_show(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        hit = find_item(data, args.id)
+        if not hit:
+            die(f"not found: {args.id}", 2)
+        section, _, item = hit
+        print(f"# section: {section}")
+        print(json.dumps(item, indent=2, ensure_ascii=False))
+
+
+def _build_today_item(args: argparse.Namespace, data: dict) -> dict:
+    base_id = args.id or slugify(args.title)
+    pid = unique_id(data, base_id)
+    item: dict[str, Any] = {
+        "id": pid,
+        "title": args.title,
+        "context": args.context or "",
+        "estimate": args.estimate or "",
+    }
+    if args.action_label or args.action_url:
+        item["action"] = {
+            "label": args.action_label or "Open",
+            "url": args.action_url or "",
+        }
+    if args.log_project or args.log_activity:
+        item["log"] = {
+            "project": args.log_project or "general",
+            "category": args.log_category or "admin",
+            "activity": args.log_activity or args.title,
+            "duration_min": args.log_duration or 0,
+            "notes": args.log_notes or "",
+        }
+    if args.expand_file:
+        with open(args.expand_file, "r", encoding="utf-8") as f:
+            item["expand"] = json.load(f)
+    return item
+
+
+def cmd_add_today(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        item = _build_today_item(args, data)
+        data.setdefault("today", []).append(item)
+        print(f"added today: {item['id']}")
+
+
+def cmd_add_room(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        item = {"title": args.title, "context": args.context or ""}
+        data.setdefault("if_theres_room", []).append(item)
+        print(f"added if_theres_room: {args.title}")
+
+
+def cmd_done(args: argparse.Namespace) -> None:
+    """Move today -> done and emit activity log using the item's `log` field."""
+    with locked_priorities() as data:
+        today = data.setdefault("today", [])
+        done = data.setdefault("done", [])
+        for i, item in enumerate(today):
+            if item.get("id") == args.id:
+                removed = today.pop(i)
+                removed["done_at"] = datetime.now().astimezone().isoformat(timespec="seconds")
+                done.insert(0, removed)
+                log_activity(removed.get("log"))
+                print(f"done: {args.id}")
+                return
+        die(f"not found in today: {args.id}", 2)
+
+
+def cmd_undone(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        today = data.setdefault("today", [])
+        done = data.setdefault("done", [])
+        for i, item in enumerate(done):
+            if item.get("id") == args.id:
+                removed = done.pop(i)
+                removed.pop("done_at", None)
+                today.insert(0, removed)
+                print(f"undone: {args.id}")
+                return
+        die(f"not found in done: {args.id}", 2)
+
+
+def cmd_remove(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        hit = find_item(data, args.id)
+        if not hit:
+            die(f"not found: {args.id}", 2)
+        section, idx, _ = hit
+        data[section].pop(idx)
+        print(f"removed from {section}: {args.id}")
+
+
+def cmd_move(args: argparse.Namespace) -> None:
+    if args.to not in SECTIONS:
+        die(f"unknown section: {args.to} (expected: {', '.join(SECTIONS)})", 2)
+    with locked_priorities() as data:
+        hit = find_item(data, args.id)
+        if not hit:
+            die(f"not found: {args.id}", 2)
+        section, idx, item = hit
+        if section == args.to:
+            die(f"already in {args.to}", 2)
+        data[section].pop(idx)
+        data.setdefault(args.to, []).append(item)
+        print(f"moved {args.id}: {section} -> {args.to}")
+
+
+def cmd_set(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        hit = find_item(data, args.id)
+        if not hit:
+            die(f"not found: {args.id}", 2)
+        _, _, item = hit
+        item[args.field] = args.value
+        print(f"set {args.id}.{args.field}")
+
+
+def cmd_northstar(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        ns = data.setdefault("northstar", {})
+        ns["text"] = args.text
+        if args.horizon:
+            ns["horizon"] = args.horizon
+        print("northstar updated")
+
+
+def cmd_subtitle(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        data["subtitle"] = args.text
+        print("subtitle updated")
+
+
+def cmd_from_file(args: argparse.Namespace) -> None:
+    if args.to not in SECTIONS:
+        die(f"unknown section: {args.to}", 2)
+    with open(args.path, "r", encoding="utf-8") as f:
+        item = json.load(f)
+    if not isinstance(item, dict):
+        die("file must contain a JSON object", 2)
+    with locked_priorities() as data:
+        if args.to in ("today", "done") and "id" in item:
+            item["id"] = unique_id(data, item["id"])
+        elif args.to in ("today", "done"):
+            item["id"] = unique_id(data, slugify(item.get("title", "item")))
+        data.setdefault(args.to, []).append(item)
+        print(f"added to {args.to}: {item.get('id') or item.get('title')}")
+
+
+def cmd_clear_done(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        count = len(data.get("done", []))
+        data["done"] = []
+        print(f"cleared {count} done item(s)")
+
+
+def cmd_append_expand(args: argparse.Namespace) -> None:
+    with locked_priorities() as data:
+        hit = find_item(data, args.id)
+        if not hit:
+            die(f"not found: {args.id}", 2)
+        _, _, item = hit
+        expand = item.setdefault("expand", {"sections": []})
+        sections = expand.setdefault("sections", [])
+        block: dict[str, Any] = {
+            "kind": args.kind,
+            "heading": args.heading,
+            "body": args.body,
+        }
+        if args.copyable:
+            block["copyable"] = True
+        if args.release:
+            block["release"] = args.release
+        sections.append(block)
+        print(f"appended {args.kind} block to {args.id}.expand")
+
+
+# ---------- parser ----------------------------------------------------------
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="desk", description=__doc__.split("\n")[0])
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    pl = sub.add_parser("list", help="list items")
+    pl.add_argument("section", nargs="?", choices=SECTIONS, default=None)
+    pl.set_defaults(func=cmd_list)
+
+    ps = sub.add_parser("show", help="show one item")
+    ps.add_argument("id")
+    ps.set_defaults(func=cmd_show)
+
+    pat = sub.add_parser("add-today", help="add a today priority")
+    pat.add_argument("--title", required=True)
+    pat.add_argument("--context", default="")
+    pat.add_argument("--estimate", default="")
+    pat.add_argument("--id", default=None)
+    pat.add_argument("--action-label", default="")
+    pat.add_argument("--action-url", default="")
+    pat.add_argument("--log-project", default="")
+    pat.add_argument("--log-category", default="")
+    pat.add_argument("--log-activity", default="")
+    pat.add_argument("--log-duration", type=int, default=0)
+    pat.add_argument("--log-notes", default="")
+    pat.add_argument("--expand-file", default="")
+    pat.set_defaults(func=cmd_add_today)
+
+    par = sub.add_parser("add-room", help="add an if_theres_room item")
+    par.add_argument("--title", required=True)
+    par.add_argument("--context", default="")
+    par.set_defaults(func=cmd_add_room)
+
+    pd = sub.add_parser("done", help="move today -> done, log activity")
+    pd.add_argument("id")
+    pd.set_defaults(func=cmd_done)
+
+    pu = sub.add_parser("undone", help="reverse done -> today")
+    pu.add_argument("id")
+    pu.set_defaults(func=cmd_undone)
+
+    pr = sub.add_parser("remove", help="delete an item by id")
+    pr.add_argument("id")
+    pr.set_defaults(func=cmd_remove)
+
+    pm = sub.add_parser("move", help="move an item between sections")
+    pm.add_argument("id")
+    pm.add_argument("--to", required=True, choices=SECTIONS)
+    pm.set_defaults(func=cmd_move)
+
+    pset = sub.add_parser("set", help="set a top-level field")
+    pset.add_argument("id")
+    pset.add_argument("field")
+    pset.add_argument("value")
+    pset.set_defaults(func=cmd_set)
+
+    pn = sub.add_parser("northstar", help="update the northstar block")
+    pn.add_argument("text")
+    pn.add_argument("--horizon", default="")
+    pn.set_defaults(func=cmd_northstar)
+
+    psub = sub.add_parser("subtitle", help="update the subtitle")
+    psub.add_argument("text")
+    psub.set_defaults(func=cmd_subtitle)
+
+    pff = sub.add_parser("from-file", help="add a full JSON item from a file")
+    pff.add_argument("path")
+    pff.add_argument("--to", required=True, choices=SECTIONS)
+    pff.set_defaults(func=cmd_from_file)
+
+    pcd = sub.add_parser("clear-done", help="wipe done[]")
+    pcd.set_defaults(func=cmd_clear_done)
+
+    pae = sub.add_parser("append-expand", help="append an expand-section block")
+    pae.add_argument("id")
+    pae.add_argument("--kind", required=True, choices=("action", "paste", "block", "note"))
+    pae.add_argument("--heading", required=True)
+    pae.add_argument("--body", required=True)
+    pae.add_argument("--copyable", action="store_true")
+    pae.add_argument("--release", default="")
+    pae.set_defaults(func=cmd_append_expand)
+
+    return p
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+    args.func(args)
+
+
+if __name__ == "__main__":
+    main()

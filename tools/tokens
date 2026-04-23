@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""Count tokens in files or stdin using tiktoken."""
+from __future__ import annotations
+
+import argparse
+import sys
+import warnings
+from pathlib import Path
+
+warnings.filterwarnings("ignore", message=".*LibreSSL.*")
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+try:
+    import tiktoken  # noqa: E402
+except ImportError:
+    sys.stderr.write(
+        "tokens: tiktoken not installed. Run: pip install --user tiktoken\n"
+    )
+    sys.exit(1)
+
+DEFAULT_ENCODING = "o200k_base"
+
+
+def get_encoder(encoding: str | None, model: str | None):
+    if model:
+        return tiktoken.encoding_for_model(model)
+    return tiktoken.get_encoding(encoding or DEFAULT_ENCODING)
+
+
+def count(text: str, enc) -> int:
+    return len(enc.encode(text, disallowed_special=()))
+
+
+def human(n: int) -> str:
+    if n >= 1_000_000:
+        return f"{n/1_000_000:.2f}M"
+    if n >= 1_000:
+        return f"{n/1_000:.1f}k"
+    return str(n)
+
+
+def main() -> int:
+    p = argparse.ArgumentParser(
+        prog="tokens",
+        description="Count tokens in files or stdin (tiktoken).",
+        epilog="examples:\n  tokens file.md\n  cat file.md | tokens\n  tokens work/**/*.md -v",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p.add_argument("files", nargs="*", help="files to count (reads stdin if omitted)")
+    p.add_argument("-e", "--encoding", default=None,
+                   help=f"tiktoken encoding (default: {DEFAULT_ENCODING}). "
+                        "Options: o200k_base, cl100k_base, p50k_base, r50k_base, gpt2")
+    p.add_argument("-m", "--model", default=None,
+                   help="infer encoding from model (e.g. gpt-4o, gpt-4)")
+    p.add_argument("-v", "--verbose", action="store_true",
+                   help="also show chars and words")
+    p.add_argument("-q", "--quiet", action="store_true",
+                   help="print only the total integer (scripting)")
+    args = p.parse_args()
+
+    try:
+        enc = get_encoder(args.encoding, args.model)
+    except Exception as exc:
+        print(f"encoding error: {exc}", file=sys.stderr)
+        return 2
+
+    total = 0
+    total_chars = 0
+    total_words = 0
+    rows = []
+
+    if not args.files:
+        text = sys.stdin.read()
+        n = count(text, enc)
+        if args.quiet:
+            print(n)
+            return 0
+        if args.verbose:
+            chars, words = len(text), len(text.split())
+            print(f"{n} tokens  {chars} chars  {words} words  (stdin)")
+        else:
+            print(f"{n} tokens  (stdin)")
+        return 0
+
+    any_err = False
+    for f in args.files:
+        path = Path(f)
+        if not path.exists():
+            print(f"  -  missing  {f}", file=sys.stderr)
+            any_err = True
+            continue
+        if path.is_dir():
+            print(f"  -  directory  {f}", file=sys.stderr)
+            any_err = True
+            continue
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except Exception as exc:
+            print(f"  -  read-error  {f}: {exc}", file=sys.stderr)
+            any_err = True
+            continue
+        n = count(text, enc)
+        chars = len(text)
+        words = len(text.split())
+        total += n
+        total_chars += chars
+        total_words += words
+        rows.append((n, chars, words, f))
+
+    if args.quiet:
+        print(total)
+        return 1 if any_err and not rows else 0
+
+    width = max((len(human(r[0])) for r in rows), default=1)
+    for n, chars, words, f in rows:
+        if args.verbose:
+            print(f"{human(n):>{width}}  {chars:>7} chars  {words:>6} words  {f}")
+        else:
+            print(f"{human(n):>{width}}  {f}")
+
+    if len(rows) > 1:
+        print("-" * 40)
+        if args.verbose:
+            print(f"{human(total):>{width}}  {total_chars:>7} chars  {total_words:>6} words  TOTAL ({len(rows)} files)")
+        else:
+            print(f"{human(total):>{width}}  TOTAL ({len(rows)} files)")
+
+    return 1 if any_err and not rows else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
