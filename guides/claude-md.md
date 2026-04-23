@@ -60,7 +60,7 @@ Project-specific vocabulary, people's names, abbreviations. Claude reads this ev
 
 ## Relationship to the Steward
 
-The steward persona file (`~/.claude/steward-persona.md`) is separate from CLAUDE.md. CLAUDE.md governs interactive sessions. The steward persona governs autonomous check-ins. They share the same project files (status.md, activity.db, git log) but serve different purposes:
+The steward persona file (`~/.steward/persona.md`) is separate from CLAUDE.md. CLAUDE.md governs interactive sessions. The steward persona governs autonomous check-ins. They share the same project files (status.md, activity.db, git log) but serve different purposes:
 
 - **CLAUDE.md**: "How should you behave when I'm working with you?"
 - **Steward persona**: "How should you assess my work when I'm not here?"

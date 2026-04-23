@@ -28,6 +28,26 @@ CREATE TABLE activity_log (
 CREATE INDEX idx_activity_ts ON activity_log(timestamp);
 CREATE INDEX idx_activity_project ON activity_log(project);
 CREATE INDEX idx_activity_category ON activity_log(category);
+
+-- The scaffolded db also creates a research_queries table (used by the
+-- research-query workflow if that feature is enabled). If you're creating
+-- the db manually and you don't need research queries, skip this:
+CREATE TABLE research_queries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    project TEXT,
+    status TEXT DEFAULT 'draft',  -- draft, sent, received, reviewed
+    model TEXT,
+    tags TEXT,                    -- comma-separated
+    summary TEXT,
+    prompt_path TEXT,
+    response_path TEXT,
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    updated_at TEXT DEFAULT (datetime('now', 'localtime'))
+);
+CREATE INDEX idx_rq_project ON research_queries(project);
+CREATE INDEX idx_rq_status ON research_queries(status);
 EOF
 ```
 

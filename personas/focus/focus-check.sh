@@ -2,6 +2,20 @@
 # Focus check — two-tier assessment: Haiku describes screens, Opus judges intent
 # Usage: ./focus-check.sh [escalation_level]
 # Returns a short focus assessment to stdout
+#
+# Runtime: claude-code only. The vision pass (Haiku) requires multimodal
+# input. Codex and other runtimes handle images differently; gating here
+# rather than failing silently.
+
+RUNTIME="${STEWARD_RUNTIME:-claude-code}"
+if [ "$RUNTIME" != "claude-code" ]; then
+    echo "focus-check: watcher currently requires STEWARD_RUNTIME=claude-code (got: $RUNTIME)" >&2
+    exit 2
+fi
+if ! command -v claude >/dev/null 2>&1; then
+    echo "focus-check: claude CLI not found on PATH" >&2
+    exit 2
+fi
 
 FOCUS_DIR="$(cd "$(dirname "$0")" && pwd)"
 STEWARD_HOME="${STEWARD_HOME:-$(cd "$FOCUS_DIR/../.." && pwd)}"

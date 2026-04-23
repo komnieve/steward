@@ -1,6 +1,6 @@
 # Focus persona — the mindfulness bell
 
-**macOS only.** The watcher uses `screencapture` + AppleScript (`osascript`) to see what's on screen. Linux users: this bundle is skipped at setup time. PR welcome for a Wayland/X11 equivalent.
+**macOS + claude-code runtime only.** The watcher uses `screencapture` + AppleScript (`osascript`) to see what's on screen, and the vision pass needs Claude Code's multimodal CLI shape. Linux users or Codex users: setup skips this bundle. PRs welcome for a Wayland/X11 equivalent, or for a Codex-compatible vision invocation.
 
 ## What it is
 

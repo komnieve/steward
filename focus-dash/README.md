@@ -35,7 +35,7 @@ All optional — the setup script wires sensible defaults into the launchd plist
 | `STEWARD_ACTIVITY_DB` | `$STEWARD_HOME/activity.db` | activity log |
 | `STEWARD_FOCUS_DB` | `$STEWARD_HOME/personas/focus/focus.db` | focus watcher db (optional) |
 | `STEWARD_STATUS_MD` | (unset) | optional project status file for refresh |
-| `STEWARD_STUCK_JSON` | `$STEWARD_HOME/steward-stuck.json` | stuck-item tracker (optional) |
+| `STEWARD_STUCK_JSON` | `$STEWARD_HOME/stuck.json` | stuck-item tracker (optional; legacy `steward-stuck.json` auto-detected if present) |
 | `STEWARD_PROJECT_ROOT` | set at install | git dir for recent commits |
 | `STEWARD_RUNTIME` | set at install | `claude-code` or `codex` |
 | `STEWARD_LLM_MODEL` | `claude-opus-4-7` | model for refresh (claude-code only) |

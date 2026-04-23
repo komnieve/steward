@@ -1,6 +1,14 @@
 # The Steward — Autonomous Check-in System
 
-The steward is an autonomous Claude Code instance that runs on a schedule, reads all your project files, and sends you an honest assessment via Signal. It has no memory between runs — it re-reads everything from scratch each time. This is a feature, not a limitation: there's no hidden state, no drift, no stale assumptions.
+> **⚠️ LEGACY DOC — pre-v0.2 architecture.** This guide describes the original `~/.claude/`-based Signal-delivery steward. The current runner lives at `scripts/daily-check.sh` and is runtime-pluggable (Claude Code / Codex) and delivery-pluggable (terminal / Slack webhook / …). Paths shown here as `~/.claude/*` now live under `~/.steward/`.
+>
+> **For current docs see:** [`guides/getting-started.md`](getting-started.md), [`guides/runtimes.md`](runtimes.md), [`guides/delivery-slack.md`](delivery-slack.md).
+>
+> Kept here as a snapshot of the original design intent. Will be folded into the current guides or removed in a future cleanup.
+
+---
+
+The steward is an autonomous agent run that runs on a schedule, reads all your project files, and sends you an honest assessment via your configured delivery channel. It has no memory between runs — it re-reads everything from scratch each time. This is a feature, not a limitation: there's no hidden state, no drift, no stale assumptions.
 
 ## How It Works
 
