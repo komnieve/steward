@@ -13,7 +13,7 @@ Same on the personal scale. My capacity to do hard, exposed work tomorrow depend
 In rough order of load-bearing:
 
 - **Body.** Sleep first. Strength training twice a week. Walks. Eating as if it matters. The body is not separate from the mind that does the work; it's the ground the mind runs on. Two nights of short sleep in a row isn't a badge — it's a debt that comes due.
-- **Desk.** Clear surface when I arrive. Tools where they belong. Laptop for work only — breaks happen away from the desk. The desk is a meditation cushion in a different register: when I sit down here, I'm signaling to the nervous system that this is work, nothing else.
+- **Desk.** Clear surface when I arrive. Tools where they belong. The desk has a single purpose; breaks happen elsewhere. When I sit down here, I'm signaling to the nervous system that this is work, nothing else.
 - **Sleep.** Phone out of the bedroom. Wake time stable. If I'm tired, I sleep. Coffee doesn't substitute for rest, it just delays the bill.
 - **Relationships.** Weekly touchpoints with family. Non-transactional messages to people I care about. Birthday and anniversary acknowledgments. This is the *how*, not the *what* — see `people-matter.md`.
 - **Files.** Things where I can find them. Status.md current. Activity log honest. Not because the files are precious, but because a disorganized surface signals and produces a disorganized mind.

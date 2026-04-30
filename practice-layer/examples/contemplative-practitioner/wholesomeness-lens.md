@@ -14,7 +14,7 @@ These are the four I'm working with right now. They run most days, in small or l
 
 ### 1. Bargaining with reality — *sīlabbata-parāmāsa* (3rd fetter)
 
-The belief there's a separate self who can strike deals with how things are. Traditionally: clinging to rites and observances as ends in themselves. Modern form: the behavioral formula treated as a binding contract with the universe. *"If I run this playbook exactly, success must follow." "If I meditate daily, equanimity must come." "If I send 100 cold emails, I'm owed replies." "If I do one more week of research, I'll earn the right to send."* The relief isn't getting what's bargained for — it's putting the bargaining down.
+The belief there's a separate self who can strike deals with how things are. Traditionally: clinging to rites and observances as ends in themselves. Modern form: the behavioral formula treated as a binding contract with the universe. *"If I run this playbook exactly, success must follow." "If I meditate daily, equanimity must come." "If I do the outreach, I'm owed replies." "If I do one more week of research, I'll earn the right to send."* The relief isn't getting what's bargained for — it's putting the bargaining down.
 
 > Cue: *"What's the trade I'm trying to make right now? With whom, for what?"*
 

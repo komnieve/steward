@@ -24,7 +24,7 @@ Produce a new `priorities.json` that reflects the current state of the user's wo
       "estimate": "~N min" or "~N hr",
       "action": { "label": "Open X", "url": "https://..." },          // optional deep-launch
       "log": {                                                          // required — for activity.db on mark-done
-        "project": "xskel" | "shuffler" | "personal" | "general" | ...,
+        "project": "client-a" | "side-project" | "personal" | "general" | ...,
         "category": "communication" | "coding" | "writing" | "planning" | "meeting" | "research" | "admin",
         "activity": "What gets logged when he marks done",
         "duration_min": 15,
@@ -34,7 +34,7 @@ Produce a new `priorities.json` that reflects the current state of the user's wo
         "sections": [
           { "kind": "action",  "heading": "Do this now", "body": "..." },
           { "kind": "paste",   "heading": "X — paste", "copyable": true, "body": "ready-to-paste text" },
-          { "kind": "block",   "heading": "What's in the way", "body": "the Guardian voice named", "release": "the release move in italic" },
+          { "kind": "block",   "heading": "What's in the way", "body": "the named blocker, in plain language", "release": "the release move in italic" },
           { "kind": "note",    "heading": "Background / Source / Why", "body": "minimal" }
         ]
       }

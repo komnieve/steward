@@ -87,10 +87,11 @@ your organization already approved. If you're on a free workspace or personal Sl
 your content is going through Slack's standard infrastructure — fine for most uses,
 but worth knowing.
 
-For ITAR-sensitive environments: the steward's *content* should never contain
-ITAR-controlled technical data regardless of delivery channel. That's a content
-discipline rule, not a transport one. Scope the steward around planning and
-reflection, not around the sensitive technical work itself.
+For regulated-data environments (ITAR, HIPAA, export-controlled, attorney-client
+privileged, etc.): the steward's *content* should never contain controlled data
+regardless of delivery channel. That's a content discipline rule, not a transport
+one. Scope the steward around planning and reflection, not around the sensitive
+technical work itself.
 
 ---
 

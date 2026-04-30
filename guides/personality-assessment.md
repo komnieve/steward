@@ -135,23 +135,25 @@ Add a section to your runtime's session-instructions file (`CLAUDE.md`, `AGENTS.
 Read this every session. It shapes how you work together.
 
 **Core pattern**: [1-2 sentences on the central dynamic that drives your work behavior.
-Example: "Avoids visibility and external testing due to fear of being found lacking."]
+Examples: "Perfectionism — drafts get polished indefinitely, decisions get
+re-litigated rather than made." / "Scattered attention — many starts, few finishes,
+strong novelty pull." / "Visibility avoidance — the work itself is fine; the part
+that's hard is being seen doing it."]
 
 **How this shows up in work**: [Specific behavioral patterns to watch for.
-Example: "Specs get written but outreach doesn't start. Configs are ready but
-don't get deployed. The work isn't hard — the exposure is."]
+Be concrete — the steward needs symptoms to recognize, not a diagnosis.]
 
 **What actually works**: [What helps you break through the pattern.
-Example: "Structured sessions with someone present. External accountability.
-Time-boxing. When stuck, asking: 'Is fear making this decision, or are you?'"]
+Be honest about what has actually worked in the past, not what you wish would work.]
 
 **Strengths**: [Your top capabilities — what to leverage.]
 
 **Growth edges**: [Where the biggest leverage is for improvement.]
 
-**How to work with him/her**: [Specific instructions for tone and approach.
-Example: "Compassion AND follow-through, always together. Don't coddle, don't shame.
-Name what's true and ask what's next."]
+**How to work with you**: [Specific instructions for tone and approach.
+Examples: "Direct. No softening. Hard truths land better than reassurance." /
+"Warm. I respond to encouragement, not pressure." / "Compassion AND follow-through,
+always together — neither alone is enough."]
 
 **Full assessment**: `work/personality-assessment.md`
 ```
@@ -174,7 +176,7 @@ The steward only needs the operational summary — it doesn't need the full inne
 ## What Makes a Good Assessment
 
 - **Honest, not flattering.** The point is accuracy, not feeling good.
-- **Specific, not generic.** "You avoid cold outreach because visibility triggers anxiety" is useful. "You sometimes procrastinate" is not.
+- **Specific, not generic.** "You re-edit drafts past the point of return because shipping them feels like risking judgment" is useful. "You sometimes procrastinate" is not.
 - **Connected to behavior.** Every insight should connect to observable patterns and actionable implications.
 - **Compassionate but direct.** Understanding why a pattern exists doesn't mean accepting it. Name it, understand it, work with it.
 - **Living document.** Update it as you learn more. Challenge anything that doesn't land. The goal is accuracy in service of direction.

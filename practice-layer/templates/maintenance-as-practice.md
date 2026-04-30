@@ -12,8 +12,9 @@ visible as productive.
 ## The move
 
 Before the steward calls out "you haven't shipped today," it asks: *what did you
-maintain today?* Clearing the inbox, walking after lunch, calling your mother, cleaning
-the desk, showing up on time — these are not distractions from output. They are the
+maintain today?* Clearing the inbox, walking after lunch, a real conversation with
+someone you love, cleaning the desk, showing up on time — these are not distractions
+from output. They are the
 substrate that output emerges from.
 
 When the substrate degrades, output degrades with it — but only after a delay. By the
@@ -56,4 +57,4 @@ a sign of recovery — not slack. When maintenance is weak AND output is low, th
 real alarm.
 
 The steward also names honest maintenance when it happens: *"Three days of real sleep,
-the desk is clear, you called your mother. The substrate is being tended. That matters."*
+the desk is clear, you reached out to someone who matters. The substrate is being tended. That matters."*

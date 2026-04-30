@@ -45,7 +45,7 @@ desk append-expand ID --kind K --heading H --body B [--copyable] [--release R]
 --id "custom-id"         (default: slugify title)
 --action-label "Open X"  pairs with action-url
 --action-url  "https://..."
---log-project  xskel     ) when all --log-* flags are set, the item
+--log-project  client-a  ) when all --log-* flags are set, the item
 --log-category writing   ) gets a `log` block that desk done
 --log-activity "..."     ) writes to $STEWARD_HOME/activity.db
 --log-duration 60

@@ -8,8 +8,8 @@ Each section carries a distinct flavor. Pick the section that matches the moment
 
 ## On the reach for distraction (core material)
 
-- *"The reach for distraction is itself practice material."* — Komnieve (UPEKHA.md)
-- *"The escape impulse IS the practice material."* — Komnieve (UPEKHA.md)
+- *"The reach for distraction is itself practice material."* — user's own (UPEKHA.md)
+- *"The escape impulse IS the practice material."* — user's own (UPEKHA.md)
 - *"You don't need to push anything away. Just know what's happening."* — Sayadaw U Tejaniya
 - *"Find out who is distracted."* — Ramana Maharshi
 - *"Look from awareness, not at awareness."* — Loch Kelly
@@ -21,8 +21,8 @@ Each section carries a distinct flavor. Pick the section that matches the moment
 
 ## On work as practice (not as test)
 
-- *"Can you do the work as an act of generosity rather than a test of adequacy?"* — Komnieve (UPEKHA.md)
-- *"What does someone who holds work as practice naturally do with the gap between tasks?"* — Komnieve (UPEKHA.md)
+- *"Can you do the work as an act of generosity rather than a test of adequacy?"* — user's own (UPEKHA.md)
+- *"What does someone who holds work as practice naturally do with the gap between tasks?"* — user's own (UPEKHA.md)
 - *"Work is love made visible."* — Kahlil Gibran
 - *"The master has failed more times than the beginner has tried."* — Stephen McCranie
 - *"Do your work, then step back. The only path to serenity."* — Lao Tzu (Tao Te Ching)
@@ -96,7 +96,7 @@ Each section carries a distinct flavor. Pick the section that matches the moment
 - *"Rest is not idleness. Rest is the cultivation of the capacity to do great work."* — loose (contemplative lineage)
 - *"To live in this world, you must be able to do three things: to love what is mortal; to hold it against your bones knowing your own life depends on it; and, when the time comes to let it go, to let it go."* — Mary Oliver
 - *"Sometimes the most important thing in a whole day is the rest we take between two deep breaths."* — Etty Hillesum
-- *"Take care of the external world, because if you have a clear external world, it helps you develop a clear internal world."* — a teacher in Burma (Komnieve's lineage)
+- *"Take care of the external world, because if you have a clear external world, it helps you develop a clear internal world."* — contemplative tradition
 - *"Silence is not the absence of something but the presence of everything."* — Gordon Hempton
 
 ## On presence / awareness
@@ -283,5 +283,5 @@ Each section carries a distinct flavor. Pick the section that matches the moment
 - Pick the section that matches the **specific** moment on screen. Dasam Granth → spiritual/Sikh. LinkedIn feed → capability / showing up or shipping. Twitter timeline → returning from drift.
 - Prefer **shorter, sharper** quotes over longer ones. The reader is one tick away from returning to work; don't hold them captive.
 - **Rotate.** If U Tejaniya has appeared twice this week, use someone else. Variety is freshness.
-- When Komnieve's own language fits, use that over a teacher. His own words land harder than anyone else's.
+- When the user's own language (from their UPEKHA.md or other practice files) fits, use that over a teacher. Their own words land harder than anyone else's.
 - **Never** attribute a quote to someone who didn't say it. If unsure, say "contemplative tradition" or omit the attribution rather than inventing one.

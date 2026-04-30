@@ -10,7 +10,7 @@ This isn't about becoming a "remembers everyone's name" person as a trick. It's 
 
 ## Why this matters enough to be its own component
 
-Because the protective part of me — the part that learned early to prefer systems over people — is strong. Specs don't abandon me. Architectures don't leave. But most of the aliveness in my life is in the specific humans I've actually let myself attend to. Extending that is the practice.
+Because the protective part of me — the part that prefers systems to people — is strong. Specs don't surprise. Architectures hold still. But most of the aliveness in my life is in the specific humans I've actually let myself attend to. Extending that is the practice.
 
 And because the relational move is not just ethics — it's also strategy. Robert Caro spent 36 years describing how Lyndon Johnson's political power was *downstream* of the care he took with individual people. The LBJ move is relational sales: remembering the kids' names, sending the *"I was thinking of you"* message three months later, knowing where someone grew up. Most network-building advice has this inverted — it treats people as nodes and then wonders why nothing lands.
 
