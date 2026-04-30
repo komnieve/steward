@@ -2,7 +2,7 @@
 # Steward setup — guided installation.
 #
 # Usage:
-#   ./scripts/setup           — run all 8 phases interactively
+#   ./scripts/setup           — run guided local setup interactively
 #   ./scripts/setup --force   — overwrite an existing ~/.steward/
 #   ./scripts/setup --help    — show this text
 #
@@ -18,7 +18,7 @@ FORCE="n"
 for arg in "$@"; do
   case "$arg" in
     --force) FORCE="y" ;;
-    --help|-h) sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --help|-h) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown argument: $arg"; exit 1 ;;
   esac
 done
@@ -37,7 +37,7 @@ source "$PHASES/common.sh"
 for f in phase-0-check phase-1-intention phase-2-practice phase-3-lens \
          phase-4-technical phase-5-bundles phase-6-scaffold \
          phase-6a-tools phase-6b-focus-dash phase-6c-watcher \
-         phase-6d-practice-interactive \
+         phase-6d-practice-interactive phase-6e-memory \
          phase-7-firstrun phase-8-handoff; do
   # shellcheck disable=SC1090
   source "$PHASES/$f.sh"
@@ -51,6 +51,8 @@ rust  "╰───────────────────────�
 echo
 dim   "  Repo:         $STEWARD_REPO"
 dim   "  Install to:   $STEWARD_HOME"
+dim   "  Default setup only writes inside $STEWARD_HOME."
+dim   "  Advanced integrations will ask again before changing runtime/global files."
 dim   "  ~20 minutes. Take it at your pace. Ctrl-C to stop; re-run to resume."
 echo
 local_confirm=""
@@ -71,5 +73,6 @@ phase_6a_tools
 phase_6b_focus_dash
 phase_6c_watcher
 phase_6d_practice_interactive
+phase_6e_memory
 phase_7_firstrun
 phase_8_handoff

@@ -17,13 +17,14 @@ phase_8_handoff() {
   say "    $STEWARD_HOME/practice/          — the practice components you chose"
   say "    $STEWARD_HOME/activity.db        — your event log (sqlite)"
   say "    $STEWARD_HOME/config.json        — runtime/delivery/feature config"
+  say "    $STEWARD_HOME/setup-preview.md   — local preview of what checks will read"
   echo
   say "  Day-to-day:"
   say "    $STEWARD_REPO/scripts/daily-check.sh      — morning steward check"
   say "    $STEWARD_REPO/scripts/evening-check.sh    — evening steward check"
   echo
   say "  Re-shape later:"
-  say "    ./scripts/setup                   — re-run to reshape anything"
+  say "    ./scripts/setup --force           — re-run setup and overwrite generated files"
   say "    edit $STEWARD_HOME/*.md           — directly"
   echo
   dim "  Intentions shift. That's the point. Come back whenever something needs to change."

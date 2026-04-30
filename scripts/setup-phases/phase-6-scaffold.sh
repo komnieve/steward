@@ -137,25 +137,47 @@ SQL
 
   # --- config.json ---
   local cfg="$STEWARD_HOME/config.json"
-  cat > "$cfg" <<EOF
-{
-  "user": "${STEWARD_USER_NAME:-user}",
-  "runtime": "$STEWARD_RUNTIME",
-  "delivery": "$STEWARD_DELIVERY",
-  "schedule": "$STEWARD_SCHEDULE",
-  "project_root": "${STEWARD_PROJECT_ROOT:-}",
-  "features": {
-    "stuck_tracker": "${STEWARD_FEAT_STUCK:-n}",
-    "time_hook":     "${STEWARD_FEAT_TIMEHOOK:-n}",
-    "research":      "${STEWARD_FEAT_RESEARCH:-n}",
-    "people_table":  "${STEWARD_FEAT_PEOPLE:-n}",
-    "tools":                 "${STEWARD_FEAT_TOOLS:-n}",
-    "focus_dash":            "${STEWARD_FEAT_DASH:-n}",
-    "focus_watcher":         "${STEWARD_FEAT_WATCHER:-n}",
-    "practice_interactive":  "${STEWARD_FEAT_PRACTICE_INTERACTIVE:-n}"
-  }
+  python3 - "$cfg" \
+    "${STEWARD_USER_NAME:-user}" \
+    "$STEWARD_RUNTIME" \
+    "$STEWARD_DELIVERY" \
+    "$STEWARD_SCHEDULE" \
+    "${STEWARD_PROJECT_ROOT:-}" \
+    "${STEWARD_FEAT_STUCK:-n}" \
+    "${STEWARD_FEAT_TIMEHOOK:-n}" \
+    "${STEWARD_FEAT_RESEARCH:-n}" \
+    "${STEWARD_FEAT_PEOPLE:-n}" \
+    "${STEWARD_FEAT_TOOLS:-n}" \
+    "${STEWARD_FEAT_DASH:-n}" \
+    "${STEWARD_FEAT_WATCHER:-n}" \
+    "${STEWARD_FEAT_PRACTICE_INTERACTIVE:-n}" <<'PY'
+import json, sys
+(
+    path, user, runtime, delivery, schedule, project_root,
+    stuck, time_hook, research, people, tools, focus_dash,
+    focus_watcher, practice_interactive,
+) = sys.argv[1:]
+data = {
+    "user": user,
+    "runtime": runtime,
+    "delivery": delivery,
+    "schedule": schedule,
+    "project_root": project_root,
+    "features": {
+        "stuck_tracker": stuck,
+        "time_hook": time_hook,
+        "research": research,
+        "people_table": people,
+        "tools": tools,
+        "focus_dash": focus_dash,
+        "focus_watcher": focus_watcher,
+        "practice_interactive": practice_interactive,
+    },
 }
-EOF
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
   sage "  wrote $cfg"
 
   # --- time-awareness hook (opt-in; Claude Code only) ---
@@ -167,12 +189,40 @@ EOF
     local cc_settings="$HOME/.claude/settings.json"
     local hook_src="$STEWARD_REPO/hooks/inject-time.sh"
     local hook_dst="$cc_hooks/inject-time.sh"
-    ensure_dir "$cc_hooks"
-    if [[ -f "$hook_src" ]]; then
-      cp "$hook_src" "$hook_dst"
-      chmod +x "$hook_dst"
-      sage "  installed time hook → $hook_dst"
-    fi
+    echo
+    dim "  time-awareness injection will modify files outside $STEWARD_HOME:"
+    dim "    write: $hook_dst"
+    dim "    merge: $cc_settings"
+    dim "  It stamps Claude Code prompts with current time and elapsed time."
+    local confirm_timehook
+    ask_yn "  install the Claude Code time hook now?" confirm_timehook n
+    if [[ "$confirm_timehook" != "y" ]]; then
+      dim "  time hook: skipped. Install manually later if wanted."
+      STEWARD_FEAT_TIMEHOOK="n"
+    elif ! mkdir -p "$cc_hooks"; then
+      rust "  time hook: could not create $cc_hooks — skipped"
+      STEWARD_FEAT_TIMEHOOK="n"
+    elif [[ ! -f "$hook_src" ]]; then
+      rust "  time hook: missing $hook_src — skipped"
+      STEWARD_FEAT_TIMEHOOK="n"
+    else
+      if [[ -f "$cc_settings" ]]; then
+        local backup="$cc_settings.steward-backup.$(date +%Y%m%d%H%M%S)"
+        if cp "$cc_settings" "$backup"; then
+          dim "  backed up existing Claude settings → $backup"
+        else
+          rust "  warning: could not back up $cc_settings; continuing with merge"
+        fi
+      fi
+      local timehook_ready="n"
+      if cp "$hook_src" "$hook_dst" && chmod +x "$hook_dst"; then
+        sage "  installed time hook → $hook_dst"
+        timehook_ready="y"
+      else
+        rust "  time hook: could not write $hook_dst — skipped settings merge"
+        STEWARD_FEAT_TIMEHOOK="n"
+      fi
+      if [[ "$timehook_ready" == "y" ]]; then
     # Merge hook registration into settings.json (preserve existing hooks/config).
     python3 - "$cc_settings" <<'PY' || rust "  could not merge $cc_settings; add the hook manually (see templates/settings.json)"
 import json, os, sys
@@ -214,9 +264,23 @@ with open(path, "w") as f:
     json.dump(data, f, indent=2)
 print(f"  registered time hook in {path}")
 PY
+      fi
+    fi
   elif [[ "${STEWARD_FEAT_TIMEHOOK:-n}" == "y" ]] && [[ "$STEWARD_RUNTIME" != "claude-code" ]]; then
     dim "  time hook: skipped (requires claude-code runtime)"
+    STEWARD_FEAT_TIMEHOOK="n"
   fi
+
+  python3 - "$cfg" "${STEWARD_FEAT_TIMEHOOK:-n}" <<'PY'
+import json, sys
+path, time_hook = sys.argv[1:]
+with open(path) as f:
+    data = json.load(f)
+data.setdefault("features", {})["time_hook"] = time_hook
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
 
   # --- runtime adapter ---
   case "$STEWARD_RUNTIME" in
@@ -237,16 +301,6 @@ PY
       fi
       ;;
   esac
-
-  # --- scheduler install (with confirmation) ---
-  if [[ "$STEWARD_SCHEDULE" != "none" ]]; then
-    local confirm
-    ask_yn "  install $STEWARD_OS scheduler entries for $STEWARD_SCHEDULE checks?" confirm n
-    if [[ "$confirm" == "y" ]]; then
-      dim "  (scheduler install not yet wired — see guides/scheduling.md for manual setup)"
-      dim "  you can add cron/launchd entries later pointing at $STEWARD_REPO/scripts/daily-check.sh"
-    fi
-  fi
 
   return 0
 }

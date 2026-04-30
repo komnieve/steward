@@ -1,8 +1,10 @@
 # Tools & Integrations Setup Guide
 
-## Required: signal-cli
+## Optional / future: signal-cli
 
-signal-cli is how the steward sends messages to your phone. It's the most friction-heavy part of setup but only needs to be done once.
+Signal delivery is not wired into the v0.2 setup flow. These notes are kept for a
+future delivery path and for people experimenting manually. The default supported
+delivery channels today are terminal and Slack webhook.
 
 ### Installation
 
@@ -50,7 +52,7 @@ echo "Steward test" | signal-cli -a +1YOURPHONE send --message-from-stdin --noti
 
 ---
 
-## Required: Claude Code
+## Runtime: Claude Code
 
 The steward runs Claude Code in headless mode (`claude -p`). Make sure it's installed and authenticated.
 

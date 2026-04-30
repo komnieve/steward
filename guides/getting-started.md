@@ -22,7 +22,8 @@ cd ~/repos/steward
 ./scripts/setup
 ```
 
-That's it. The setup script walks you through eight phases.
+That's it. The setup script walks you through the local Steward core first, then asks
+separately before enabling advanced integrations.
 
 > **A note on `project_root`:** if you enable `focus-dash` or the focus watcher,
 > setup asks for a **project_root** — the path to the work repo you want the
@@ -48,16 +49,26 @@ edit to fit you. See [`practice-layer.md`](practice-layer.md).
 **Phase 3 — User lens.** A short guided capture of who you are when working well, what
 trips you up, how you communicate. Writes `~/.steward/user-lens.md`.
 
-**Phase 4 — Technical.** Picks delivery channel (terminal, Slack webhook, email,
-Signal) and schedule (morning, evening, both, or manual-only).
+**Phase 4 — Technical.** Confirms the detected runtime and picks delivery channel.
+Terminal works with no extra setup; Slack webhook is supported. Email, Signal, and
+automatic scheduler installation are not wired into this version of setup.
 
-**Phase 5 — Optional features.** Stuck-item tracker, time-awareness hook, research
-query tracking, people table — all opt-in.
+**Phase 5 — Optional features and integrations.** Local features are separated from
+runtime/global integrations and background services. The default path stays inside
+`~/.steward`; anything that edits `~/.claude`, `~/.codex`, installs Python packages,
+loads launchd jobs, or needs OS permissions asks again first.
+
+One of the heavier optional features here is **Steward Memory** (Recall) — a local
+hybrid search index over your Steward files and any folders you add. It installs
+torch + sentence-transformers and downloads ~600MB of model weights on first use.
+Off by default; safe to skip on lighter machines. See
+[`local-memory.md`](local-memory.md).
 
 **Phase 6 — Scaffolding.** Renders templates, initializes the activity database,
 writes the runtime adapter (`CLAUDE.md` for Claude Code, `AGENTS.md` for Codex).
 
-**Phase 7 — First run.** Optional smoke test.
+**Phase 7 — Local preview.** Writes `~/.steward/setup-preview.md`, showing what a real
+check will read. It does not call your agent runtime.
 
 **Phase 8 — Handoff.** Summary of what's installed and how to use it day-to-day.
 
@@ -68,6 +79,7 @@ writes the runtime adapter (`CLAUDE.md` for Claude Code, `AGENTS.md` for Codex).
 ```
 ~/.steward/
   config.json             ← runtime/delivery/feature config
+  setup-preview.md        ← local preview of what checks will read
   intention.md            ← your Phase 1 answers
   user-lens.md            ← your Phase 3 answers
   persona.md              ← how the steward speaks to you
@@ -89,8 +101,8 @@ writes the runtime adapter (`CLAUDE.md` for Claude Code, `AGENTS.md` for Codex).
 bash ~/repos/steward/scripts/daily-check.sh
 ```
 
-**Scheduled runs** (if you picked a schedule during setup): cron or launchd fires
-`daily-check.sh` at your chosen times, and delivery goes to your chosen channel.
+**Scheduled runs:** setup leaves Steward manual-only for now. Add cron, systemd, or
+launchd entries yourself if you want `daily-check.sh` to run automatically.
 
 **Logging activity:**
 

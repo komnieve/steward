@@ -1,0 +1,89 @@
+# Recall configuration template.
+#
+# Default location resolution:
+#   1. RECALL_CONFIG env var → explicit path
+#   2. RECALL_HOME env var   → $RECALL_HOME/config.toml
+#   3. Default               → ~/.steward/recall/config.toml
+#
+# All paths support ~ and $VAR expansion.
+
+[index]
+db_path   = "~/.steward/recall/search.db"
+lock_path = "~/.steward/recall/index.lock"
+
+[embedding]
+# Local embedding model. First use downloads weights from Hugging Face
+# (~600MB on disk for snowflake-arctic-embed-l-v2.0) and may take time.
+# No note contents are ever sent to an embedding API; embedding runs locally.
+model           = "Snowflake/snowflake-arctic-embed-l-v2.0"
+dim             = 1024
+device          = "auto"        # "auto" | "mps" | "cuda" | "cpu"
+batch_size      = 8
+max_seq_length  = 512
+query_prefix    = "query: "
+document_prefix = ""
+
+[query_db]
+default_limit_cli = 1000
+default_limit_mcp = 500
+max_limit         = 2000
+timeout_seconds   = 10.0
+
+[chunking]
+target_tokens  = 300
+max_tokens     = 800
+overlap_tokens = 50
+
+[search]
+rrf_k     = 60
+vec_top_k = 50
+fts_top_k = 50
+
+# --- Markdown sources --------------------------------------------------------
+# Each source is a directory (or single file) walked for .md / .txt files.
+# `name` becomes the document's source_type, used for filtering in `recall
+# search -s NAME`.
+
+[[markdown_sources]]
+name       = "steward"
+path       = "~/.steward"
+extensions = [".md", ".txt"]
+
+# Add more directories as needed. Paths can point anywhere on disk.
+# [[markdown_sources]]
+# name       = "project"
+# path       = "/path/to/your/project"
+# extensions = [".md", ".txt"]
+
+[exclusions]
+dir_names = [
+    "node_modules", "vendor", ".venv", "venv", ".git",
+    "dist", "build", "__pycache__", ".pytest_cache",
+    ".next", ".cache", "embeddings_cache",
+]
+file_extensions = [
+    ".pdf", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg",
+    ".mp3", ".mp4", ".mov", ".wav", ".m4a",
+    ".zip", ".tar", ".gz", ".tgz", ".bz2",
+    ".db", ".sqlite", ".sqlite3",
+    ".pyc", ".so", ".dylib",
+]
+
+# --- SQLite sources ----------------------------------------------------------
+# Optional: one synthetic document is produced per row of each declared table.
+# Set `queryable = true` to also expose the database to the `query_db` tool.
+#
+# Example: a journal SQLite database with one row per entry.
+#
+# [[sqlite_sources]]
+# name      = "journal"
+# path      = "~/.steward/journal.db"
+# queryable = true
+#
+#   [[sqlite_sources.tables]]
+#   table           = "entries"
+#   id_column       = "id"
+#   modified_column = "updated_at"
+#   title_columns   = ["topic"]
+#   text_columns    = ["created_at", "topic", "body"]
+#   where           = "body IS NOT NULL AND trim(body) != ''"

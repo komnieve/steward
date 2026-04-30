@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Phase 4 — technical choices (runtime, delivery, schedule).
-# Sets STEWARD_DELIVERY, STEWARD_SCHEDULE, and writes runtime adapter config.
+# Phase 4 — technical choices (runtime, delivery).
+# Sets STEWARD_DELIVERY and STEWARD_SCHEDULE.
 
 phase_4_technical() {
   heading "Phase 4 — technical choices"
@@ -14,10 +14,9 @@ phase_4_technical() {
   dim "  delivery channel — how should the steward reach you?"
   dim "    1) terminal   — steward morning prints to stdout (default, zero setup)"
   dim "    2) slack      — slack incoming webhook (best for always-on notifications)"
-  dim "    3) email      — docs only for v0.2, not wired yet"
-  dim "    4) signal     — signal-cli or SignalWire (high friction, see guides/delivery-signal.md)"
+  dim "  email and Signal are not wired in this version, so setup won't offer them yet."
   local choice
-  ask "  pick 1-4:" choice "1"
+  ask "  pick 1-2:" choice "1"
   case "$choice" in
     2)
       STEWARD_DELIVERY="slack"
@@ -28,30 +27,17 @@ phase_4_technical() {
         printf 'SLACK_WEBHOOK_URL=%s\n' "$webhook" >> "$STEWARD_HOME/.env"
       fi
       ;;
-    3) STEWARD_DELIVERY="email"; dim "  email is docs-only in v0.2 — see guides/delivery-email.md when wired" ;;
-    4) STEWARD_DELIVERY="signal"; dim "  see guides/delivery-signal.md for signal-cli setup" ;;
     *) STEWARD_DELIVERY="terminal" ;;
   esac
   sage "  delivery: $STEWARD_DELIVERY"
   echo
 
   # --- Schedule ---
-  dim "  schedule — when should the steward run on its own?"
-  dim "    1) none      — manual only, you run 'steward morning' when you want"
-  dim "    2) morning   — 9:00 local"
-  dim "    3) evening   — 18:00 local"
-  dim "    4) both      — 9:00 and 18:00 local"
-  ask "  pick 1-4:" choice "1"
-  case "$choice" in
-    2) STEWARD_SCHEDULE="morning" ;;
-    3) STEWARD_SCHEDULE="evening" ;;
-    4) STEWARD_SCHEDULE="both" ;;
-    *) STEWARD_SCHEDULE="none" ;;
-  esac
+  dim "  schedule — automatic daily scheduling is not wired into setup yet."
+  dim "  Setup will leave Steward manual-only. You can run:"
+  dim "    $STEWARD_REPO/scripts/daily-check.sh"
+  dim "    $STEWARD_REPO/scripts/evening-check.sh"
+  STEWARD_SCHEDULE="none"
   sage "  schedule: $STEWARD_SCHEDULE"
-
-  if [[ "$STEWARD_SCHEDULE" != "none" ]]; then
-    dim  "  (cron/launchd installation deferred to Phase 6; you'll confirm before anything is installed)"
-  fi
   return 0
 }

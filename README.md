@@ -25,6 +25,10 @@ happens, keep reading.
   your work and speaks in that register.
 - **Works with your agent of choice.** Claude Code, Codex, or anything that can read
   files and shell out. Bring your own.
+- **Optional local memory.** Steward Memory (Recall) builds a local hybrid search
+  index over your Steward files and any folders you add — local model, no embedding
+  API. Heavier install; off by default. See
+  [`guides/local-memory.md`](guides/local-memory.md).
 
 Not a chatbot. Not a to-do app. A system that sees you clearly and shows up reliably.
 
@@ -53,8 +57,8 @@ what's live (`status.md`), what happened (`activity.db`), what's stuck (`stuck.j
 [`practice-layer/SPEC.md`](practice-layer/SPEC.md).
 
 Your agent runtime (Claude Code, Codex, or any file-reading agent) loads both at the
-start of every run. Daily review generates a short reflection. Delivery is terminal,
-Slack webhook, or email — your pick.
+start of every run. Daily review generates a short reflection. Delivery is terminal
+or Slack webhook in v0.2.
 
 ---
 
@@ -76,15 +80,16 @@ cd ~/repos/steward
 ./scripts/setup
 ```
 
-`setup` walks you through eight phases: prerequisite check, intention capture,
-Practice Layer components, user lens, technical choices (runtime, delivery, schedule),
-optional features, scaffolding, first run, and handoff. At the end, your
-`~/.steward/` is configured to you.
+`setup` walks you through prerequisite check, intention capture, Practice Layer
+components, user lens, technical choices, optional local tools, advanced integrations,
+scaffolding, a local preview, and handoff. The default path only writes inside
+`~/.steward/`; anything that edits runtime/global config or starts background services
+asks again and shows the target files first.
 
-On macOS, you can use launchd for scheduled runs. On WSL/Linux, use cron or
-systemd — the scripts work the same way; only scheduling differs. If you enable
-focus-dash or the focus watcher, setup will ask for a `project_root` — point it
-at your actual work repo, not the steward clone (or leave blank to skip
+Manual runs work immediately after setup. Automatic scheduling is not wired into the
+main installer yet; use launchd, cron, or systemd manually if you want scheduled runs.
+If you enable focus-dash or the focus watcher, setup will ask for a `project_root` —
+point it at your actual work repo, not the steward clone (or leave blank to skip
 git-aware features).
 
 See [`guides/getting-started.md`](guides/getting-started.md) for the walkthrough.
@@ -98,7 +103,7 @@ steward/
   README.md                         ← this file
   scripts/
     setup                           ← guided installer (start here)
-    setup-phases/                   ← 8 per-phase sub-scripts
+    setup-phases/                   ← guided setup phases
     daily-check.sh                  ← morning steward run
     evening-check.sh                ← evening steward run
   practice-layer/
@@ -108,6 +113,8 @@ steward/
   runtimes/
     claude-code/                    ← adapter for Claude Code
     codex/                          ← adapter for Codex
+  packages/
+    recall/                         ← Steward Memory engine (optional, local search)
   guides/
     getting-started.md
     practice-layer.md
@@ -138,7 +145,7 @@ steward/
   [`guides/delivery-slack.md`](guides/delivery-slack.md).
 - **Slack MCP plugin** (Claude Code only) — `claude plugin install slack`. Richer
   capabilities if you're on CC.
-- **Email / Signal** — documented paths, not wired in v0.2. Coming.
+- **Email / Signal** — not wired in v0.2. Coming.
 
 ---
 

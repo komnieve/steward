@@ -1,0 +1,22 @@
+search.db
+search.db-shm
+search.db-wal
+__pycache__/
+*.egg-info/
+*.pyc
+.venv/
+venv/
+embeddings_cache/
+.pytest_cache/
+.recall-index.log
+.index.lock
+index.lock
+*.lock.pid
+
+# Eval suites are private to each user's index — never shipped in this package.
+tests/eval_queries.yaml
+
+# Root .gitignore excludes *.sql — force-include the schema, which is loaded
+# at runtime via importlib.resources from the recall.db package.
+!src/recall/db/schema.sql
+!src/recall/db/migrations/*.sql

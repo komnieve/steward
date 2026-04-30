@@ -24,20 +24,43 @@ phase_6d_practice_interactive() {
 
   heading "Phase 6d — load Practice Layer in interactive sessions"
 
+  local target=""
   case "$STEWARD_RUNTIME" in
-    claude-code)
-      _pl_wire_file "$HOME/.claude/CLAUDE.md" "$practice_dir"
-      ;;
-    codex)
-      _pl_wire_file "$HOME/.codex/AGENTS.md" "$practice_dir"
-      ;;
+    claude-code) target="$HOME/.claude/CLAUDE.md" ;;
+    codex)       target="$HOME/.codex/AGENTS.md" ;;
     *)
       dim "  runtime $STEWARD_RUNTIME — no known global config file for your agent."
       dim "  to get the Practice Layer loaded in interactive sessions, add this snippet"
       dim "  to your runtime's global context file (wherever that lives):"
       _pl_print_snippet "$practice_dir"
+      return 0
       ;;
   esac
+
+  dim "  This will append or refresh a marked Steward block in:"
+  dim "    $target"
+  dim "  The block will list these practice files:"
+  local f
+  for f in "$practice_dir"/*.md; do
+    [[ -f "$f" ]] && dim "    - $f"
+  done
+  dim "  Existing content outside the Steward markers is left untouched."
+  local confirm
+  ask_yn "  write this runtime integration now?" confirm n
+  if [[ "$confirm" != "y" ]]; then
+    dim "  practice-interactive: skipped. Add the block manually later if wanted."
+    STEWARD_FEAT_PRACTICE_INTERACTIVE="n"
+    _pl_update_config_flag "practice_interactive" "n"
+    return 0
+  fi
+
+  if _pl_wire_file "$target" "$practice_dir"; then
+    _pl_update_config_flag "practice_interactive" "y"
+  else
+    rust "  practice-interactive: could not write $target — skipped"
+    STEWARD_FEAT_PRACTICE_INTERACTIVE="n"
+    _pl_update_config_flag "practice_interactive" "n"
+  fi
   return 0
 }
 
@@ -125,4 +148,19 @@ _pl_print_snippet() {
   _pl_render_snippet "$practice_dir"
   echo "$PL_MARK_END"
   echo ""
+}
+
+_pl_update_config_flag() {
+  local key="$1" value="$2" cfg="$STEWARD_HOME/config.json"
+  [[ -f "$cfg" ]] || return 0
+  python3 - "$cfg" "$key" "$value" <<'PY'
+import json, sys
+path, key, value = sys.argv[1:]
+with open(path) as f:
+    data = json.load(f)
+data.setdefault("features", {})[key] = value
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
 }

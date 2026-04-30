@@ -47,12 +47,14 @@ fi
 
 log "starting $MODE check"
 
-# --- load config (via sed; keeps us stdlib-only) ---
-cfg() { sed -n "s/.*\"$1\": *\"\\([^\"]*\\)\".*/\\1/p" "$STEWARD_HOME/config.json" | head -1; }
-
-RUNTIME=$(cfg runtime)
-DELIVERY=$(cfg delivery)
-USER_NAME=$(cfg user)
+# --- load config ---
+read -r RUNTIME DELIVERY USER_NAME < <(python3 - "$STEWARD_HOME/config.json" <<'PY'
+import json, sys
+with open(sys.argv[1]) as f:
+    data = json.load(f)
+print(data.get("runtime", ""), data.get("delivery", "terminal"), data.get("user", "user"))
+PY
+)
 
 log "runtime=$RUNTIME delivery=$DELIVERY user=$USER_NAME"
 

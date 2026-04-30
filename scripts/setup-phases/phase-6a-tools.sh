@@ -15,8 +15,9 @@ phase_6a_tools() {
   # tiktoken check (tokens dependency)
   if ! python3 -c 'import tiktoken' 2>/dev/null; then
     dim "  tokens requires the tiktoken Python package."
+    dim "  This installs outside $STEWARD_HOME into your user Python environment."
     local install_tt
-    ask_yn "    install tiktoken now via: pip install --user tiktoken?" install_tt y
+    ask_yn "    install tiktoken now via: pip install --user tiktoken?" install_tt n
     if [[ "$install_tt" == "y" ]]; then
       if python3 -m pip install --user tiktoken >/dev/null 2>&1; then
         sage "  tiktoken installed"

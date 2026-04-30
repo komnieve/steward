@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recall"
+version = "0.1.0"
+description = "Local hybrid search over markdown corpora and SQLite databases"
+requires-python = ">=3.11"
+# Required deps are kept light so a base `pip install recall` doesn't pull
+# torch. The actual embedding model and its backend (sentence-transformers +
+# torch, ~2GB on disk) live in the [embeddings] extra. Steward setup installs
+# `recall[embeddings]`; standalone users who only want chunking + FTS over
+# their own embedder can install the base package and provide a custom embed.
+dependencies = [
+    "numpy>=1.24",
+    "sqlite-vec>=0.1.6",
+    "mistune>=3.0.0",
+    "python-frontmatter>=1.1.0",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+    "mcp>=1.0.0",
+    "pyyaml>=6.0",
+    "filelock>=3.13.0",
+]
+
+[project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=3.0.0",
+    "torch>=2.2.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+recall = "recall.cli:main"
+recall-mcp = "recall.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+recall = ["db/schema.sql", "db/migrations/*.sql"]
