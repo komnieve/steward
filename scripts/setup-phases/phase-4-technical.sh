@@ -14,9 +14,10 @@ phase_4_technical() {
   dim "  delivery channel — how should the steward reach you?"
   dim "    1) terminal   — steward morning prints to stdout (default, zero setup)"
   dim "    2) slack      — slack incoming webhook (best for always-on notifications)"
-  dim "  email and Signal are not wired in this version, so setup won't offer them yet."
+  dim "    3) signal     — send-only Signal message via signal-cli (to yourself or anyone)"
+  dim "  email is not wired in this version, so setup won't offer it yet."
   local choice
-  ask "  pick 1-2:" choice "1"
+  ask "  pick 1-3:" choice "1"
   case "$choice" in
     2)
       STEWARD_DELIVERY="slack"
@@ -25,6 +26,22 @@ phase_4_technical() {
       ask "  webhook:" webhook ""
       if [[ -n "$webhook" ]]; then
         printf 'SLACK_WEBHOOK_URL=%s\n' "$webhook" >> "$STEWARD_HOME/.env"
+      fi
+      ;;
+    3)
+      STEWARD_DELIVERY="signal"
+      dim "  Signal needs signal-cli installed and a registered/linked number."
+      dim "  See guides/tools-setup.md for install + linking (macOS, Linux, WSL)."
+      local signal_number signal_recipient
+      dim "  the number steward sends *from* (registered/linked), e.g. +12025550123:"
+      ask "  signal number:" signal_number ""
+      dim "  who receives it (leave blank to send to yourself):"
+      ask "  recipient:" signal_recipient ""
+      if [[ -n "$signal_number" ]]; then
+        printf 'SIGNAL_NUMBER=%s\n' "$signal_number" >> "$STEWARD_HOME/.env"
+        printf 'SIGNAL_RECIPIENT=%s\n' "${signal_recipient:-$signal_number}" >> "$STEWARD_HOME/.env"
+      else
+        dim "  no number entered — configure SIGNAL_NUMBER/SIGNAL_RECIPIENT in $STEWARD_HOME/.env later."
       fi
       ;;
     *) STEWARD_DELIVERY="terminal" ;;
