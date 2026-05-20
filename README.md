@@ -57,8 +57,8 @@ what's live (`status.md`), what happened (`activity.db`), what's stuck (`stuck.j
 [`practice-layer/SPEC.md`](practice-layer/SPEC.md).
 
 Your agent runtime (Claude Code, Codex, or any file-reading agent) loads both at the
-start of every run. Daily review generates a short reflection. Delivery is terminal
-or Slack webhook in v0.2.
+start of every run. Daily review generates a short reflection. Delivery is terminal,
+Slack webhook, or Signal in v0.2.
 
 ---
 
@@ -145,7 +145,10 @@ steward/
   [`guides/delivery-slack.md`](guides/delivery-slack.md).
 - **Slack MCP plugin** (Claude Code only) — `claude plugin install slack`. Richer
   capabilities if you're on CC.
-- **Email / Signal** — not wired in v0.2. Coming.
+- **Signal** — send-only delivery via `signal-cli`. Reflections arrive as a Signal
+  message to your own number (or any recipient you set). See
+  [`guides/tools-setup.md`](guides/tools-setup.md).
+- **Email** — not wired in v0.2. Coming.
 
 ---
 

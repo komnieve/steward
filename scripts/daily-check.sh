@@ -149,7 +149,31 @@ case "$DELIVERY" in
         || log "slack delivery failed"
     fi
     ;;
-  email|signal)
+  signal)
+    SIGNAL_NUMBER=""
+    SIGNAL_RECIPIENT=""
+    if [[ -f "$STEWARD_HOME/.env" ]]; then
+      SIGNAL_NUMBER=$(grep '^SIGNAL_NUMBER=' "$STEWARD_HOME/.env" | cut -d= -f2-)
+      SIGNAL_RECIPIENT=$(grep '^SIGNAL_RECIPIENT=' "$STEWARD_HOME/.env" | cut -d= -f2-)
+    fi
+    # Default recipient to the linked number (send-to-self) when unset.
+    [[ -z "$SIGNAL_RECIPIENT" ]] && SIGNAL_RECIPIENT="$SIGNAL_NUMBER"
+    if ! command -v signal-cli >/dev/null 2>&1; then
+      log "signal-cli not found — falling back to stdout"
+      cat "$MSG"
+    elif [[ -z "$SIGNAL_NUMBER" ]]; then
+      log "no SIGNAL_NUMBER in $STEWARD_HOME/.env — falling back to stdout"
+      cat "$MSG"
+    else
+      if signal-cli -a "$SIGNAL_NUMBER" send --message-from-stdin --notify-self "$SIGNAL_RECIPIENT" < "$MSG" >> "$LOG" 2>&1; then
+        log "delivered to signal ($SIGNAL_RECIPIENT)"
+      else
+        log "signal delivery failed — falling back to stdout"
+        cat "$MSG"
+      fi
+    fi
+    ;;
+  email)
     log "$DELIVERY delivery not yet wired in v0.2; falling back to stdout"
     cat "$MSG"
     ;;
