@@ -148,7 +148,7 @@ pipx install gws-cli
 
 ```bash
 # Set up Google Cloud project and OAuth credentials
-# See: https://github.com/nicholasgasior/gws-cli for details
+# See: https://pypi.org/project/gws-cli/ for details
 
 gws auth login
 ```
@@ -321,4 +321,4 @@ Configure tool permissions in `.claude/settings.local.json`:
 }
 ```
 
-This controls which tools Claude can use without asking for permission. The steward scripts explicitly set `--allowedTools "Read,Glob,Grep,Bash"` for the autonomous runs.
+This controls which tools Claude can use without asking for permission. The daily check explicitly sets `--allowedTools "Read,Glob,Grep,Bash(sqlite3:*)"` for the autonomous runs, so the steward can read its files and query activity.db without broader shell access.

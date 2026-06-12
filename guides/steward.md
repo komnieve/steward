@@ -27,7 +27,7 @@ Script builds a prompt combining:
     |
     v
 claude -p runs headless with the prompt
-  - Reads work/status.md
+  - Reads ~/.steward/status.md
   - Reads project files in work/
   - Checks git log
   - Forms assessment
@@ -65,7 +65,7 @@ signal-cli sends message to your phone
 
 ### No memory between runs
 The steward reads from files every time. This means:
-- Your `work/status.md` MUST be current (most common failure mode)
+- Your `~/.steward/status.md` MUST be current (most common failure mode)
 - There's no "ghost state" — what the steward knows is exactly what's in the files
 - If the steward gives a wrong assessment, the fix is always in the files
 

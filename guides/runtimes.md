@@ -68,6 +68,20 @@ under [`runtimes/`](../runtimes/).
 
 ## Switching runtimes
 
-If you installed with one runtime and want to switch, re-run `./scripts/setup
---runtime claude-code` (or `--runtime codex`). Your Practice Layer, status file,
-activity log, and user lens stay intact; only the adapter file changes.
+If you installed with one runtime and want to switch, it's a two-step manual change
+(setup has no flag for this):
+
+1. Edit `~/.steward/config.json` and set the `runtime` field to `"claude-code"` or
+   `"codex"`.
+2. Copy the adapter template for the new runtime into `~/.steward/`:
+
+```bash
+# switching to Claude Code
+cp runtimes/claude-code/CLAUDE.md.template ~/.steward/CLAUDE.md
+
+# switching to Codex
+cp runtimes/codex/AGENTS.md.template ~/.steward/AGENTS.md
+```
+
+Your Practice Layer, status file, activity log, and user lens stay intact; only the
+adapter file changes.

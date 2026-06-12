@@ -70,6 +70,7 @@ Slack webhook, or Signal in v0.2.
   [Codex](https://github.com/openai/codex) (either works — use what you have)
 - API key for the runtime (Anthropic or OpenAI)
 - `sqlite3`
+- `python3` (3.x — setup and the daily check use it for config handling)
 - A Unix-ish shell (macOS, Linux, WSL)
 
 **Install (~20 min):**
@@ -82,7 +83,7 @@ cd ~/repos/steward
 
 `setup` walks you through prerequisite check, intention capture, Practice Layer
 components, user lens, technical choices, optional local tools, advanced integrations,
-scaffolding, a local preview, and handoff. The default path only writes inside
+scaffolding, your steward's first check-in, and handoff. The default path only writes inside
 `~/.steward/`; anything that edits runtime/global config or starts background services
 asks again and shows the target files first.
 
@@ -115,6 +116,12 @@ steward/
     codex/                          ← adapter for Codex
   packages/
     recall/                         ← Steward Memory engine (optional, local search)
+  tools/
+    desk, tokens                    ← small optional CLIs (priorities, token counts)
+  focus-dash/
+    refresh.sh ...                  ← browser dashboard at localhost:8888 (optional)
+  personas/
+    focus/                          ← focus watcher (macOS-only, optional, opt-in)
   guides/
     getting-started.md
     practice-layer.md

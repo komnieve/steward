@@ -66,8 +66,16 @@ Best practice for calibration:
 
 ## Adding components later
 
-Run `./scripts/setup --add-practice` to append components to an existing install
-without re-running the full setup.
+Copy the template in and register it in the manifest:
+
+```bash
+cp practice-layer/templates/<name>.md ~/.steward/practice/
+echo "<name>" >> ~/.steward/practice/.installed
+```
+
+The manifest (`~/.steward/practice/.installed`) is one component name per line, no
+`.md` extension — e.g. `true-north`. The steward loads whatever markdown is in the
+directory; the manifest records what setup installed.
 
 ---
 

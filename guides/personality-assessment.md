@@ -181,9 +181,20 @@ The steward only needs the operational summary — it doesn't need the full inne
 - **Compassionate but direct.** Understanding why a pattern exists doesn't mean accepting it. Name it, understand it, work with it.
 - **Living document.** Update it as you learn more. Challenge anything that doesn't land. The goal is accuracy in service of direction.
 
-## Setup Note: Fork, Don't Clone
+## Setup Note: Private Copy, Not a Fork
 
-If you're using someone else's steward repo as a starting point, **fork it** on GitHub and make your fork **private**. This gives you your own copy you can customize without affecting the original, and keeps your personal assessment files out of a public repo. On GitHub: click "Fork" → check "Copy the main branch only" → under your fork's Settings → General → change visibility to Private.
+If you're using someone else's steward repo as a starting point, don't fork it on GitHub — forks of public repos **cannot be made private**, so your personal assessment files would stay public. Instead, make your own private copy:
+
+1. On GitHub, create a new **private** repository (empty — no README).
+2. Either use GitHub's **"Import repository"** tool with the original repo's URL, or mirror it from the command line:
+
+```bash
+git clone --bare https://github.com/ORIGINAL-OWNER/steward.git
+cd steward.git
+git push --mirror https://github.com/YOU/steward-private.git
+```
+
+This gives you a full copy (history included) you can customize without affecting the original, and keeps your personal files out of public view.
 
 ## Privacy Note
 

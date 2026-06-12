@@ -2,7 +2,7 @@
 
 ## Why This Matters
 
-`work/status.md` is the **single most important file** in the steward system. The autonomous steward reads it cold every morning and evening with zero memory of prior runs. If this file is stale or inaccurate, the steward will:
+`~/.steward/status.md` is the **single most important file** in the steward system. (If you keep a separate project repo, a `work/status.md` there is an optional convention some setups use — the scaffold created by setup lives at `~/.steward/status.md`.) The autonomous steward reads it cold every morning and evening with zero memory of prior runs. If this file is stale or inaccurate, the steward will:
 - Nag you about things already done
 - Miss things that changed
 - Give recommendations based on outdated information
@@ -75,7 +75,7 @@ One line per accomplishment. Concrete. Answer "what did I get done this week?" a
 ### Session instruction
 Include this in your runtime's session-instructions file (`CLAUDE.md`, `AGENTS.md`, etc.):
 
-> "Update work/status.md every session — especially when threads change state (started, shipped, blocked, killed). The steward reads this file cold with no memory."
+> "Update ~/.steward/status.md every session — especially when threads change state (started, shipped, blocked, killed). The steward reads this file cold with no memory."
 
 ### Common failure modes
 

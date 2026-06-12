@@ -53,7 +53,7 @@ but avoiding because I don't get it — flag it. Gently. Like this:
 "I can handle this, but this seems like it might be a learning edge for you —
 [concept]. Want me to explain it so you can do it next time, or just handle it?"
 
-Maintain a file at `work/learning-edges.md` that tracks areas where I'm pushing my
+Maintain a file at `~/.steward/learning-edges.md` that tracks areas where I'm pushing my
 understanding. When relevant, generate retrieval practice questions instead of
 just giving me answers.
 
@@ -103,7 +103,7 @@ See the [template](../templates/learning-edges-template.md) for a blank version 
 
 ## Future: Steward-Delivered Spaced Repetition
 
-The full vision: the steward reads your learning-edges.md during its morning or evening check-in and includes 1-2 retrieval questions in the Signal message. Not every day — maybe twice a week, spaced out by topic.
+The full vision: the steward reads your learning-edges.md during its morning or evening check-in and includes 1-2 retrieval questions in the check-in message. Not every day — maybe twice a week, spaced out by topic.
 
 ```
 Morning check-in:
@@ -115,7 +115,7 @@ You have a query that's doing an index scan but still slow.
 What are three things you'd check in the EXPLAIN output?
 ```
 
-This isn't built yet but the pieces are all there — the steward already reads project files and sends Signal messages on a schedule. Adding retrieval questions is a natural extension.
+This isn't built yet but the pieces are all there — the steward already reads project files and sends messages via your configured delivery channel (terminal, Slack, or Signal) when you schedule `daily-check.sh`. Adding retrieval questions is a natural extension.
 
 ## The Principle
 

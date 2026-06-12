@@ -12,6 +12,8 @@ From clone to first run in about 20 minutes.
   runtime uses).
 - `sqlite3` (usually pre-installed on macOS/Linux; `sudo apt install sqlite3` on
   Debian/Ubuntu/WSL).
+- `python3` (3.x) — setup's scaffolding phase and `daily-check.sh` use it (usually
+  pre-installed on macOS/Linux).
 - Unix-ish shell — macOS, Linux, or WSL.
 
 ## Install
@@ -50,7 +52,8 @@ edit to fit you. See [`practice-layer.md`](practice-layer.md).
 trips you up, how you communicate. Writes `~/.steward/user-lens.md`.
 
 **Phase 4 — Technical.** Confirms the detected runtime and picks delivery channel.
-Terminal works with no extra setup; Slack webhook is supported. Email, Signal, and
+Terminal works with no extra setup; Slack webhook and Signal (send-only via
+`signal-cli` — see [`tools-setup.md`](tools-setup.md)) are supported. Email and
 automatic scheduler installation are not wired into this version of setup.
 
 **Phase 5 — Optional features and integrations.** Local features are separated from
@@ -99,6 +102,13 @@ check will read. It does not call your agent runtime.
 
 ```bash
 bash ~/repos/steward/scripts/daily-check.sh
+```
+
+Note: `daily-check.sh` silently skips weekends and US holidays
+(`templates/holidays.txt`). To run it anyway:
+
+```bash
+FORCE=1 bash ~/repos/steward/scripts/daily-check.sh
 ```
 
 **Scheduled runs:** setup leaves Steward manual-only for now. Add cron, systemd, or

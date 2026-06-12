@@ -54,7 +54,7 @@ Project-specific vocabulary, people's names, abbreviations. Claude reads this ev
 
 3. **Don't over-engineer.** Start with the template, use it for a week, then adjust based on what's actually helpful.
 
-4. **Reference other files.** CLAUDE.md should point to detailed files rather than containing everything. "See work/status.md for project state" keeps it manageable.
+4. **Reference other files.** CLAUDE.md should point to detailed files rather than containing everything. "See ~/.steward/status.md for project state" keeps it manageable.
 
 5. **Include guardrails.** "Ask before destructive actions" and "never fabricate facts" prevent costly mistakes.
 
