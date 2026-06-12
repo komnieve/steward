@@ -4,6 +4,12 @@
 phase_8_handoff() {
   heading "Phase 8 — you're set up"
   echo
+  sage "  ✓ Setup is complete. Your steward is ready."
+  echo
+  say  "  The one thing to do next — run this each morning:"
+  say  "    bash $STEWARD_REPO/scripts/daily-check.sh"
+  dim  "  (or schedule it so it arrives on its own — see guides/getting-started.md.)"
+  echo
   sage "  Steward home:    $STEWARD_HOME"
   sage "  Runtime:         $STEWARD_RUNTIME"
   sage "  Delivery:        $STEWARD_DELIVERY"
@@ -17,7 +23,9 @@ phase_8_handoff() {
   say "    $STEWARD_HOME/practice/          — the practice components you chose"
   say "    $STEWARD_HOME/activity.db        — your event log (sqlite)"
   say "    $STEWARD_HOME/config.json        — runtime/delivery/feature config"
-  say "    $STEWARD_HOME/setup-preview.md   — local preview of what checks will read"
+  if [[ -f "$STEWARD_HOME/setup-preview.md" ]]; then
+    say "    $STEWARD_HOME/setup-preview.md   — local preview of what checks will read"
+  fi
   echo
   say "  Day-to-day:"
   say "    $STEWARD_REPO/scripts/daily-check.sh      — morning steward check"

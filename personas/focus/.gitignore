@@ -4,3 +4,4 @@ focus.db-wal
 focus.db-shm
 screenshots/
 *.log
+focus-loop.err

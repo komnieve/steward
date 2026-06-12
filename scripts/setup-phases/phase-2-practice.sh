@@ -91,7 +91,8 @@ afterthought to productivity."
   # Render each selected template into $STEWARD_HOME/practice/.
   local tpl_dir="$STEWARD_REPO/practice-layer/templates"
   local out_dir="$STEWARD_HOME/practice"
-  for key in "${PRACTICE_SELECTED[@]}"; do
+  # ${arr[@]+...} guard: expanding an empty array under set -u is fatal on bash 3.2 (macOS default).
+  for key in ${PRACTICE_SELECTED[@]+"${PRACTICE_SELECTED[@]}"}; do
     local src="$tpl_dir/$key.md"
     local dst="$out_dir/$key.md"
     if [[ -f "$src" ]]; then
@@ -103,6 +104,10 @@ afterthought to productivity."
   done
 
   # Write a manifest so other phases know what's installed.
-  printf '%s\n' "${PRACTICE_SELECTED[@]}" > "$STEWARD_HOME/practice/.installed"
+  if [[ ${#PRACTICE_SELECTED[@]} -gt 0 ]]; then
+    printf '%s\n' "${PRACTICE_SELECTED[@]}" > "$STEWARD_HOME/practice/.installed"
+  else
+    : > "$STEWARD_HOME/practice/.installed"
+  fi
   return 0
 }

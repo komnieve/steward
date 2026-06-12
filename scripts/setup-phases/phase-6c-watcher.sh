@@ -25,6 +25,7 @@ phase_6c_watcher() {
   cp "$src/focus-check.sh"   "$dst/focus-check.sh"
   cp "$src/focus-loop.sh"    "$dst/focus-loop.sh"
   cp "$src/quote-finder.sh"  "$dst/quote-finder.sh"
+  cp "$src/quote-finder.prompt.md" "$dst/quote-finder.prompt.md"
   cp "$src/quotes.md"        "$dst/quotes.md"
   cp "$src/README.md"        "$dst/README.md"
   cp "$src/.gitignore"       "$dst/.gitignore" 2>/dev/null || true

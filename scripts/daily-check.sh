@@ -30,6 +30,9 @@ if [[ ! -f "$STEWARD_HOME/config.json" ]]; then
   exit 1
 fi
 
+# Clean up temp files on every exit path, including aborts.
+trap 'rm -f "${BRIEF:-}" "${MSG:-}"' EXIT
+
 # --- skip weekends and holidays (unless forced) ---
 if [[ "${FORCE:-}" != "1" ]]; then
   DOW=$(date +%u)  # 1=Mon … 7=Sun
@@ -37,10 +40,12 @@ if [[ "${FORCE:-}" != "1" ]]; then
   HOLIDAYS="$STEWARD_REPO/templates/holidays.txt"
   if [[ "$DOW" -ge 6 ]]; then
     log "SKIPPED weekend"
+    echo "steward: skipping weekend run — set FORCE=1 to run anyway."
     exit 0
   fi
   if [[ -f "$HOLIDAYS" ]] && grep -q "^$TODAY" "$HOLIDAYS"; then
     log "SKIPPED holiday $TODAY"
+    echo "steward: skipping holiday run ($TODAY) — set FORCE=1 to run anyway."
     exit 0
   fi
 fi
@@ -48,13 +53,18 @@ fi
 log "starting $MODE check"
 
 # --- load config ---
-read -r RUNTIME DELIVERY USER_NAME < <(python3 - "$STEWARD_HOME/config.json" <<'PY'
+# One field per line: a single space-separated line field-shifts when runtime is
+# empty (RUNTIME silently becomes "terminal", DELIVERY becomes the username).
+CONFIG_FIELDS=$(python3 - "$STEWARD_HOME/config.json" <<'PY'
 import json, sys
 with open(sys.argv[1]) as f:
     data = json.load(f)
-print(data.get("runtime", ""), data.get("delivery", "terminal"), data.get("user", "user"))
+print(data.get("runtime") or "none")
+print(data.get("delivery") or "terminal")
+print(data.get("user") or "user")
 PY
-)
+) || { echo "error: cannot parse $STEWARD_HOME/config.json — re-run ./scripts/setup." >&2; exit 1; }
+{ read -r RUNTIME; read -r DELIVERY; read -r USER_NAME; } <<< "$CONFIG_FIELDS"
 
 log "runtime=$RUNTIME delivery=$DELIVERY user=$USER_NAME"
 
@@ -72,11 +82,11 @@ BRIEF=$(mktemp -t steward-brief.XXXXXX)
   echo "# Steward briefing — $MODE — $(date '+%Y-%m-%d %H:%M %Z')"
   echo
   echo "## Context you already have"
-  echo "- user-lens: \`~/.steward/user-lens.md\`"
-  echo "- persona:   \`~/.steward/persona.md\`"
-  echo "- intention: \`~/.steward/intention.md\`"
-  echo "- practice:  \`~/.steward/practice/*.md\`"
-  echo "- status:    \`~/.steward/status.md\`"
+  echo "- user-lens: \`$STEWARD_HOME/user-lens.md\`"
+  echo "- persona:   \`$STEWARD_HOME/persona.md\`"
+  echo "- intention: \`$STEWARD_HOME/intention.md\`"
+  echo "- practice:  \`$STEWARD_HOME/practice/*.md\`"
+  echo "- status:    \`$STEWARD_HOME/status.md\`"
   echo
   echo "## Recent activity (last 48h)"
   if [[ -n "$ACTIVITY" ]]; then
@@ -107,7 +117,7 @@ MSG=$(mktemp -t steward-msg.XXXXXX)
 case "$RUNTIME" in
   claude-code)
     if command -v claude >/dev/null 2>&1; then
-      (cd "$STEWARD_HOME" && claude -p "$(cat "$BRIEF")" --output-format text) > "$MSG" 2>> "$LOG" || {
+      (cd "$STEWARD_HOME" && claude -p "$(cat "$BRIEF")" --output-format text --allowedTools "Read,Glob,Grep,Bash(sqlite3:*)") > "$MSG" 2>> "$LOG" || {
         log "claude invocation failed — see $LOG"
         echo "[steward] agent invocation failed; see $LOG" > "$MSG"
       }
@@ -118,7 +128,7 @@ case "$RUNTIME" in
     ;;
   codex)
     if command -v codex >/dev/null 2>&1; then
-      (cd "$STEWARD_HOME" && codex run "$(cat "$BRIEF")") > "$MSG" 2>> "$LOG" || {
+      (cd "$STEWARD_HOME" && codex exec - < "$BRIEF") > "$MSG" 2>> "$LOG" || {
         log "codex invocation failed — see $LOG"
         echo "[steward] agent invocation failed; see $LOG" > "$MSG"
       }
@@ -133,29 +143,40 @@ case "$RUNTIME" in
     ;;
 esac
 
+# --- SKIP gate: the persona may answer exactly "SKIP" to mean "nothing useful to say" ---
+if [[ "$(tr -d '[:space:]' < "$MSG")" == "SKIP" ]]; then
+  log "SKIP — nothing to deliver"
+  rm -f "$BRIEF" "$MSG"
+  exit 0
+fi
+
 # --- deliver ---
+# env_get: read a key from .env without tripping set -e/pipefail when the key is
+# absent (grep exits 1). Last match wins so a re-run's appended value takes effect.
+env_get() {
+  [[ -f "$STEWARD_HOME/.env" ]] || return 0
+  grep "^$1=" "$STEWARD_HOME/.env" | tail -n1 | cut -d= -f2- || true
+}
 case "$DELIVERY" in
   slack)
-    WEBHOOK=""
-    [[ -f "$STEWARD_HOME/.env" ]] && WEBHOOK=$(grep '^SLACK_WEBHOOK_URL=' "$STEWARD_HOME/.env" | cut -d= -f2-)
+    WEBHOOK=$(env_get SLACK_WEBHOOK_URL)
     if [[ -z "$WEBHOOK" ]]; then
       log "no SLACK_WEBHOOK_URL — falling back to stdout"
       cat "$MSG"
     else
       # Escape for JSON: naive, works for most steward output.
       PAYLOAD=$(python3 -c "import json,sys; print(json.dumps({'text': sys.stdin.read()}))" < "$MSG")
-      curl -s -X POST -H 'Content-Type: application/json' --data "$PAYLOAD" "$WEBHOOK" >> "$LOG" 2>&1 \
-        && log "delivered to slack webhook" \
-        || log "slack delivery failed"
+      if curl -s -X POST -H 'Content-Type: application/json' --data "$PAYLOAD" "$WEBHOOK" >> "$LOG" 2>&1; then
+        log "delivered to slack webhook"
+      else
+        log "slack delivery failed — falling back to stdout"
+        cat "$MSG"
+      fi
     fi
     ;;
   signal)
-    SIGNAL_NUMBER=""
-    SIGNAL_RECIPIENT=""
-    if [[ -f "$STEWARD_HOME/.env" ]]; then
-      SIGNAL_NUMBER=$(grep '^SIGNAL_NUMBER=' "$STEWARD_HOME/.env" | cut -d= -f2-)
-      SIGNAL_RECIPIENT=$(grep '^SIGNAL_RECIPIENT=' "$STEWARD_HOME/.env" | cut -d= -f2-)
-    fi
+    SIGNAL_NUMBER=$(env_get SIGNAL_NUMBER)
+    SIGNAL_RECIPIENT=$(env_get SIGNAL_RECIPIENT)
     # Default recipient to the linked number (send-to-self) when unset.
     [[ -z "$SIGNAL_RECIPIENT" ]] && SIGNAL_RECIPIENT="$SIGNAL_NUMBER"
     if ! command -v signal-cli >/dev/null 2>&1; then

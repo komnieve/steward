@@ -78,7 +78,7 @@ if [ -f "$PRIORITIES_FILE" ]; then
     PRIORITIES=$(python3 -c "
 import json, sys
 try:
-    d = json.load(open('$PRIORITIES_FILE'))
+    d = json.load(open(sys.argv[1]))
     out = []
     ns = d.get('northstar', {})
     if ns.get('text'):
@@ -96,7 +96,7 @@ try:
     print('\\n'.join(out))
 except Exception as e:
     print(f'(priorities unreadable: {e})', file=sys.stderr)
-" 2>/dev/null)
+" "$PRIORITIES_FILE" 2>/dev/null)
 fi
 if [ -z "$PRIORITIES" ] && [ -n "$STATUS_FILE" ] && [ -f "$STATUS_FILE" ]; then
     PRIORITIES=$(awk '/^## P0/{flag=1; next} /^## |^---/{flag=0} flag' "$STATUS_FILE")

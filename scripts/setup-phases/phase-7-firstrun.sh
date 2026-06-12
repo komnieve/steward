@@ -1,12 +1,38 @@
 #!/usr/bin/env bash
-# Phase 7 — local preview. Optional.
+# Phase 7 — first run + local preview.
 
 phase_7_firstrun() {
-  heading "Phase 7 — local preview"
+  heading "Phase 7 — meet your steward"
+
+  # The interview is done. Before anything else, let the steward actually speak —
+  # ending setup without a first run is how people conclude "it didn't do anything."
+  local runchoice
+  if [[ "$STEWARD_RUNTIME" != "none" ]]; then
+    say "  the interview is done. your steward can do its first check-in right now —"
+    dim "  it reads what you just wrote and says something back. takes a minute or two."
+    ask_yn "  run your first steward check now?" runchoice y
+    if [[ "$runchoice" == "y" ]]; then
+      echo
+      if FORCE=1 MODE=morning bash "$STEWARD_REPO/scripts/daily-check.sh"; then
+        echo
+        sage "  ✓ that was your steward's first check-in."
+      else
+        rust "  the first check didn't complete — setup itself is still fine."
+        dim  "    look at $STEWARD_HOME/logs/morning.log, then try again with:"
+        dim  "    bash $STEWARD_REPO/scripts/daily-check.sh"
+      fi
+    else
+      dim "  skipped. run it anytime: bash $STEWARD_REPO/scripts/daily-check.sh"
+    fi
+  else
+    dim "  no agent runtime installed, so skipping the first check."
+    dim "  once you install one, run: bash $STEWARD_REPO/scripts/daily-check.sh"
+  fi
+  echo
+
   local choice
-  ask_yn "  write a local preview of what Steward will read?" choice y
+  ask_yn "  also write a local preview of what Steward reads each day?" choice n
   if [[ "$choice" != "y" ]]; then
-    dim "  skipped. run ./scripts/daily-check.sh whenever you're ready."
     return 0
   fi
 
@@ -48,7 +74,5 @@ phase_7_firstrun() {
   } > "$preview"
   sage "  wrote $preview"
   dim "  This preview is local only; it does not call your agent runtime."
-  dim "  When you're ready for a real steward check, run:"
-  say "    bash $STEWARD_REPO/scripts/daily-check.sh"
   return 0
 }

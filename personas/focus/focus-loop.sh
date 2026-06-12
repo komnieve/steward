@@ -35,7 +35,7 @@ count_recent_drifts() {
     sqlite3 "$DB_FILE" "SELECT COUNT(*) FROM focus_log WHERE is_drift = 1 AND timestamp > '$cutoff';"
 }
 
-echo "[focus] Starting. Every ${INTERVAL_MIN}m, ${WORK_START}am-${WORK_END%%12}pm. (PID $$)"
+echo "[focus] Starting. Every ${INTERVAL_MIN}m, ${WORK_START}:00-${WORK_END}:00. (PID $$)"
 echo "[focus] Kill with: focus-off"
 
 cleanup() {
@@ -46,10 +46,13 @@ cleanup() {
 trap cleanup SIGTERM SIGINT
 
 while true; do
-    # 0. Check work hours
+    # 0. Prune screenshots older than 3 days (privacy + disk hygiene)
+    find "$SCREENSHOT_DIR" -name '*.png' -mtime +3 -delete 2>/dev/null
+
+    # 0b. Check work hours
     HOUR=$(date '+%H' | sed 's/^0//')
     if [ "$HOUR" -lt "$WORK_START" ] || [ "$HOUR" -ge "$WORK_END" ]; then
-        echo "[focus] $(date '+%H:%M') Outside work hours. Sleeping until ${WORK_START}am..."
+        echo "[focus] $(date '+%H:%M') Outside work hours. Sleeping until ${WORK_START}:00..."
         # Sleep until next work start (rough — just check every 15 min)
         sleep 900
         continue
@@ -113,8 +116,17 @@ return output' 2>/dev/null)
     ESCALATION=$((RECENT_DRIFTS + 1))
     [ "$ESCALATION" -gt 5 ] && ESCALATION=5
 
-    # 6. Run focus check with escalation level
-    RESULT=$("$FOCUS_DIR/focus-check.sh" "$ESCALATION" 2>/dev/null)
+    # 6. Run focus check with escalation level.
+    #    Stderr goes to focus-loop.err; a non-zero exit (2 = runtime
+    #    misconfigured, 1 = screenshot failure) is a failed check, NOT
+    #    an "on track" tick — surface it, skip db logging, try again.
+    RESULT=$("$FOCUS_DIR/focus-check.sh" "$ESCALATION" 2>"$FOCUS_DIR/focus-loop.err")
+    CHECK_RC=$?
+    if [ "$CHECK_RC" -ne 0 ]; then
+        echo "[focus] $(date '+%H:%M') check failed (rc=$CHECK_RC) — see focus-loop.err"
+        sleep "$INTERVAL_SEC"
+        continue
+    fi
 
     # 7. Determine if on-track (strip whitespace, backticks, dashes-only)
     CLEAN=$(echo "$RESULT" | tr -d '`' | xargs)
@@ -141,7 +153,13 @@ return output' 2>/dev/null)
             *)   BTN="Going for a walk" ;;
         esac
 
-        osascript -e "display dialog \"$CLEAN\" with title \"🔔\" buttons {\"$BTN\"} default button 1 with icon note" &>/dev/null &
+        # Pass dynamic strings as argv — drift messages contain quoted text,
+        # and interpolating them into AppleScript source breaks the dialog.
+        osascript \
+            -e 'on run argv' \
+            -e 'display dialog (item 1 of argv) with title "🔔" buttons {item 2 of argv} default button 1 with icon note' \
+            -e 'end run' \
+            "$CLEAN" "$BTN" &>/dev/null &
         DIALOG_PID=$!
     fi
 

@@ -52,14 +52,14 @@ case "$RUNTIME" in
         --model "${STEWARD_LLM_MODEL:-claude-opus-4-6}" \
         --max-turns 100 \
         --permission-mode dontAsk \
-        2>>"$LOG")
+        2>>"$LOG") || { echo "[$TS] ERROR: claude invocation failed" >> "$LOG"; exit 1; }
     ;;
   codex)
     if ! command -v codex >/dev/null 2>&1; then
       echo "[$TS] ERROR: codex CLI not on PATH" >> "$LOG"
       exit 1
     fi
-    RESULT=$(codex run "$PROMPT" 2>>"$LOG")
+    RESULT=$(codex exec - <<<"$PROMPT" 2>>"$LOG")
     ;;
   *)
     echo "[$TS] ERROR: unknown STEWARD_RUNTIME=$RUNTIME" >> "$LOG"

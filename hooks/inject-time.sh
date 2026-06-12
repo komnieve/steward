@@ -13,7 +13,23 @@ NOW_EPOCH=$(date +%s)
 NOW_ISO=$(date '+%Y-%m-%dT%H:%M:%S%z')
 NOW_LOCAL=$(date '+%Y-%m-%d %H:%M %Z')
 WEEKDAY=$(date '+%A')
-TZ_IANA=$(timedatectl show -p Timezone --value 2>/dev/null || echo "${TZ:-unknown}")
+# Timezone: /etc/localtime symlink works on macOS and most Linux; timedatectl is
+# Linux-only; $TZ is the last resort.
+TZ_IANA=$(readlink /etc/localtime 2>/dev/null | sed 's|.*/zoneinfo/||')
+[ -n "$TZ_IANA" ] || TZ_IANA=$(timedatectl show -p Timezone --value 2>/dev/null || echo "${TZ:-unknown}")
+
+# Interactive = a human is at the keyboard. Headless sessions (launchd/cron
+# steward runs) have no terminal, so /dev/tty won't open — they may read the
+# clock but must not reset it, or automated runs would fake human activity.
+INTERACTIVE="false"
+if ( : < /dev/tty ) 2>/dev/null; then
+    INTERACTIVE="true"
+elif [ -n "${TERM:-}" ] && [ "$TERM" != "dumb" ]; then
+    # Some hook harnesses don't attach /dev/tty even in interactive sessions;
+    # fall back to TERM: terminal-launched sessions inherit it, launchd/cron
+    # environments don't set it.
+    INTERACTIVE="true"
+fi
 
 # Calculate elapsed time since last prompt
 TIMESTAMP_FILE="$HOME/.claude/.last-prompt-timestamp"
@@ -23,7 +39,9 @@ DATE_CHANGED=""
 if [ -f "$TIMESTAMP_FILE" ]; then
     LAST_EPOCH=$(cat "$TIMESTAMP_FILE")
     ELAPSED=$((NOW_EPOCH - LAST_EPOCH))
-    LAST_DATE=$(date -d "@$LAST_EPOCH" '+%Y-%m-%d' 2>/dev/null)
+    # BSD (macOS) date first, GNU fallback — `date -d @epoch` is GNU-only and
+    # silently failing here made date_changed read "true" on every prompt.
+    LAST_DATE=$(date -r "$LAST_EPOCH" '+%Y-%m-%d' 2>/dev/null || date -d "@$LAST_EPOCH" '+%Y-%m-%d' 2>/dev/null)
     NOW_DATE=$(date '+%Y-%m-%d')
 
     if [ "$ELAPSED" -lt 60 ]; then
@@ -36,15 +54,21 @@ if [ -f "$TIMESTAMP_FILE" ]; then
         ELAPSED_DISPLAY="$((ELAPSED / 86400))d $((ELAPSED % 86400 / 3600))h"
     fi
 
-    if [ "$LAST_DATE" != "$NOW_DATE" ]; then
-        DATE_CHANGED="true"
-    else
-        DATE_CHANGED="false"
+    # Only meaningful when we could compute LAST_DATE on this platform.
+    if [ -n "$LAST_DATE" ]; then
+        if [ "$LAST_DATE" != "$NOW_DATE" ]; then
+            DATE_CHANGED="true"
+        else
+            DATE_CHANGED="false"
+        fi
     fi
 fi
 
-# Write current timestamp for next calculation
-echo "$NOW_EPOCH" > "$TIMESTAMP_FILE"
+# Write current timestamp for next calculation — interactive sessions only, so
+# the since-last-prompt clock always measures from the last *human* prompt.
+if [ "$INTERACTIVE" = "true" ]; then
+    echo "$NOW_EPOCH" > "$TIMESTAMP_FILE"
+fi
 
 # Get last activity from activity.db for gap awareness.
 # Prefer $STEWARD_HOME/activity.db; fall back to legacy ~/.claude/activity.db for
@@ -67,7 +91,7 @@ echo "weekday: $WEEKDAY"
 echo "timezone: $TZ_IANA"
 if [ -n "$ELAPSED_DISPLAY" ]; then
     echo "since_last_prompt: $ELAPSED_DISPLAY"
-    echo "date_changed: $DATE_CHANGED"
+    [ -n "$DATE_CHANGED" ] && echo "date_changed: $DATE_CHANGED"
 fi
 if [ -n "$LAST_ACTIVITY" ]; then
     echo "last_activity: $LAST_ACTIVITY"

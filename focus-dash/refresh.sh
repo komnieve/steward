@@ -19,7 +19,8 @@
 
 set -u
 
-export TZ="${TZ:-America/Los_Angeles}"
+# Respect an explicitly-set TZ; otherwise use system localtime.
+[ -n "${TZ:-}" ] && export TZ
 unset CLAUDECODE
 
 DASH_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -77,7 +78,7 @@ if [ "$DOW" -ge 6 ]; then
   exit 0
 fi
 
-TMPDIR_REFRESH=$(mktemp -d -t focus-refresh)
+TMPDIR_REFRESH=$(mktemp -d "${TMPDIR:-/tmp}/focus-refresh.XXXXXX") || exit 1
 CONTEXT="$TMPDIR_REFRESH/context.md"
 OUT_RAW="$TMPDIR_REFRESH/raw.txt"
 OUT_JSON="$TMPDIR_REFRESH/out.json"
@@ -168,7 +169,7 @@ case "$RUNTIME" in
         --model "$MODEL" \
         --permission-mode dontAsk \
         --max-turns 4 \
-        -d "$PROJECT_DIR" \
+        --add-dir "$PROJECT_DIR" \
         < "$FULL" > "$OUT_RAW" 2>> "$LOG"
     else
       claude \
@@ -187,9 +188,9 @@ case "$RUNTIME" in
       exit 1
     fi
     if [ -n "$PROJECT_DIR" ] && [ -d "$PROJECT_DIR" ]; then
-      ( cd "$PROJECT_DIR" && codex run "$(cat "$FULL")" ) > "$OUT_RAW" 2>> "$LOG"
+      ( cd "$PROJECT_DIR" && codex exec - < "$FULL" ) > "$OUT_RAW" 2>> "$LOG"
     else
-      codex run "$(cat "$FULL")" > "$OUT_RAW" 2>> "$LOG"
+      codex exec - < "$FULL" > "$OUT_RAW" 2>> "$LOG"
     fi
     EXIT=$?
     ;;
@@ -275,8 +276,8 @@ fi
 cp "$PRIORITIES" "$DASH_DIR/priorities.prev.json"
 mv "$OUT_JSON" "$PRIORITIES"
 
-TODAY_COUNT=$(python3 -c "import json; print(len(json.load(open('$PRIORITIES'))['today']))")
-DONE_COUNT=$(python3 -c "import json; print(len(json.load(open('$PRIORITIES')).get('done',[])))")
+TODAY_COUNT=$(python3 -c "import json, sys; print(len(json.load(open(sys.argv[1]))['today']))" "$PRIORITIES")
+DONE_COUNT=$(python3 -c "import json, sys; print(len(json.load(open(sys.argv[1])).get('done',[])))" "$PRIORITIES")
 echo "$TS: refresh SUCCESS — today=$TODAY_COUNT done=$DONE_COUNT" >> "$LOG"
 
 rm -rf "$TMPDIR_REFRESH"

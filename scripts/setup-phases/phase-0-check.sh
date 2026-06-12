@@ -48,6 +48,18 @@ phase_0_check() {
   fi
   say "  sqlite3: ok"
 
+  # python3 check — phase 6 writes config.json and merges settings via python3.
+  # Must EXECUTE it, not just find it on PATH: on a fresh Mac without Command Line
+  # Tools, /usr/bin/python3 is a stub that exists but fails when run.
+  if ! python3 -c 'import json' >/dev/null 2>&1; then
+    rust "  python3 not found (or not runnable)"
+    dim  "    Steward setup uses python3 to write config.json and merge settings. Install it and re-run."
+    dim  "      macos: xcode-select --install   (or: brew install python3)"
+    dim  "      linux/wsl: sudo apt install python3  (or your pkg manager)"
+    return 1
+  fi
+  say "  python3: ok"
+
   # API key check (informational — we don't fail if missing; user may set via runtime config).
   if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
     say "  api key: ANTHROPIC_API_KEY detected"

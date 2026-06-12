@@ -66,6 +66,7 @@ def locked_priorities():
     On normal exit, writes the mutated dict back atomically (truncate + write
     under the same lock). On exception, nothing is written.
     """
+    os.makedirs(os.path.dirname(PRIORITIES), exist_ok=True)
     fd = os.open(PRIORITIES, os.O_RDWR | os.O_CREAT)
     try:
         fcntl.flock(fd, fcntl.LOCK_EX)
